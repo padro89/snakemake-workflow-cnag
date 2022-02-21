@@ -1,0 +1,18 @@
+project: "TEST_01"
+meta: "/home/joan/OneDrive/UOC/TFM/snakemake-workflow-cnag/test.tsv"
+paired: false
+map_mode: "bulk"
+mode: "small"
+strand: "forw"
+trimming: true
+index:
+  star: "path/index"
+  rsem: "path/index"
+  gtf: "path/file.gtf"
+versions:
+  star_version: "2.7.8a"
+  rsem_version: "1.3.0"
+path:
+  trim: "/tmp"
+  map: "/tmp"
+  quant: "/tmp"
