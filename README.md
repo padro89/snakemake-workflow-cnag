@@ -21,13 +21,13 @@ For every step of this project I'm going to use github for version control. Belo
 ### Branches I create
 
 - `setup`: A branch where I created the conda environment and tested the script.
-- `deseq2`: A branch where I try to implement the deseq2.R script in Snakemake.
+- `deseq2-script`: A branch where I try to implement the deseq2.R script in Snakemake.
 
 ## What I'd like to do
 
-### Conda env to download specific R and Python packages versions and test the scripts (setup branch)
+### Install conda/mamba and create an environment to run the deseq2 script
 
-- I created a .yaml file and and environment adapted to de DESeq2 version (1.26). Conda (or Mamba) automatically resolved other packages versions.
+- I created a .yaml file `mamba-envir.yaml` and environment adapted to de DESeq2 version (1.26). Conda (or Mamba) automatically resolved other packages versions.
 - The .yaml file had several fields. `name`, `channels` (where I specified conda-forge and bioconda) and `dependencies`, where I specified the packages to install into the new environment.
 - To create the environment, I ran `mamba env create -f <yaml_file>`.
 - I ran the deseq2.R script using Rscript and the arguments, and it worked flawlesly without any need of adding any packages.
@@ -53,6 +53,6 @@ For every step of this project I'm going to use github for version control. Belo
 - There is some problem with the `lfcShrinkage()` part. Second argument should be `coefs`, not `contrasts`. Maybe if I fix this part it will work with the latest version.
 - I don't need a specific environment to test this, I can just run and correct the script in my system deactivating conda/mamba.
 
-## Implement the option to use Limma instead of DESEQ2
+## Implement the option to use limma instead of DESeq2
 
 ## Some kind of comparation or Benchmark
