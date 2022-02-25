@@ -62,6 +62,11 @@ For every step of this project I'm going to use github for version control. Belo
 
 - It should be specified in the config.yaml whether DESeq2 or limma-voom should be used.
 
+## Implement the option to create a "Materials and Methods" file
+
+- It could export software versions.
+- It could generate the relevant bibliography in a .bib file.
+
 ## Some kind of comparation or Benchmark
 
 ## Implement a different README.md file explaining how everything works.
