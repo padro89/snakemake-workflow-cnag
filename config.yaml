@@ -23,8 +23,12 @@ path:
 # Specify a list with the covariants to include
 factors: ["SEX"]
 continuous: [NULL]
+# Specify which variable contains the groups
+group: "GROUP"
+# Specify the control group
+control: "Unaffected"
 # Specify if only PCA should be generated
-onlypca: True
+onlypca: False
 # Specify a string with the formula to use for the model
 formula: "~SEX + group"
 # Specify the contrasts as a list

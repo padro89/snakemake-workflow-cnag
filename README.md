@@ -23,6 +23,7 @@ For every step of this project I'm going to use github for version control. Belo
 
 - `setup`: A branch where I created the conda environment and tested the script.
 - `deseq2-script`: A branch where I try to implement the deseq2.R script in Snakemake.
+- `update-deseq2-version`: A branch where I will update the DESeq2 version in the script.
 
 ## What I'd like to do
 
@@ -36,8 +37,9 @@ For every step of this project I'm going to use github for version control. Belo
 
 ### Implement the deseq2 script
 
-- Should I keep the config.R file, or should I include it in the Snakemake config file?
-- Can I parse the arguments in the snakemake rules so they aren't needed? I think they sould be in the config file.
+- I used the parameters defined in the config.R file in the config.yaml Snakemake file.
+- All the arguments were included in the config.ymal.
+- I implemented the R script using S4 objects in the script to make calls to Snakemake config.yaml.
 - Should I change anything about the output?
 
 ### Modularize the deseq2 script inside snakemake
