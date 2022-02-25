@@ -36,7 +36,7 @@ For every step of this project I'm going to use github for version control. Belo
 ### Implement the deseq2 script
 
 - Should I keep the config.R file, or should I include it in the Snakemake config file?
-- Can I parse the arguments in the snakemake rules so they aren't needed?
+- Can I parse the arguments in the snakemake rules so they aren't needed? I think they sould be in the config file.
 - Should I change anything about the output?
 
 ### Modularize the deseq2 script inside snakemake
@@ -53,6 +53,15 @@ For every step of this project I'm going to use github for version control. Belo
 - There is some problem with the `lfcShrinkage()` part. Second argument should be `coefs`, not `contrasts`. Maybe if I fix this part it will work with the latest version.
 - I don't need a specific environment to test this, I can just run and correct the script in my system deactivating conda/mamba.
 
+## Change plots in the output
+
+- Add volcano plots.
+- Modify the PCA using my own function.
+
 ## Implement the option to use limma instead of DESeq2
 
+- It should be specified in the config.yaml whether DESeq2 or limma-voom should be used.
+
 ## Some kind of comparation or Benchmark
+
+## Implement a different README.md file explaining how everything works.
