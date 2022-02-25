@@ -1,7 +1,8 @@
 # Transcriptomics workflow
+
 Repository used to create a Snakemake transcriptomics workflow for CNAG
 
-In this file I will reflect any ideas I have concerning this project, and what I am using.
+In this file I will reflect any ideas I have concerning this project, and what I am using. Eventually it will become a description of the process and it will explain how to use, functioning as the pipeline ducumentation.
 
 ## Version control by use of github
 
@@ -46,27 +47,27 @@ For every step of this project I'm going to use github for version control. Belo
 - Snakemake S4 objects should be used inside the scripts to get results from scripts run in other rules.
 - PCA should be shown first, and only afterwards should one run the complete Snakemake.
 
-## Implement the pathway analysis using Snakemake
+### Implement the pathway analysis using Snakemake
 
-## Update the  script to include DESeq latest version
+### Update the  script to include DESeq latest version
 
 - There is some problem with the `lfcShrinkage()` part. Second argument should be `coefs`, not `contrasts`. Maybe if I fix this part it will work with the latest version.
 - I don't need a specific environment to test this, I can just run and correct the script in my system deactivating conda/mamba.
 
-## Change plots in the output
+### Change plots in the output
 
 - Add volcano plots.
 - Modify the PCA using my own function.
 
-## Implement the option to use limma instead of DESeq2
+### Implement the option to use limma instead of DESeq2
 
 - It should be specified in the config.yaml whether DESeq2 or limma-voom should be used.
 
-## Implement the option to create a "Materials and Methods" file
+### Implement the option to create a "Materials and Methods" file
 
 - It could export software versions.
 - It could generate the relevant bibliography in a .bib file.
 
-## Some kind of comparation or Benchmark
+### Some kind of comparation or Benchmark
 
-## Implement a different README.md file explaining how everything works.
+### Implement a different README.md file explaining how everything works.
