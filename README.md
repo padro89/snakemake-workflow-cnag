@@ -59,7 +59,12 @@ For every step of this project I'm going to use github for version control. Belo
 
 ### Update the  script to include DESeq latest version
 
-- There is some problem with the `lfcShrinkage()` part. Second argument should be `coefs`, not `contrasts`. Maybe if I fix this part it will work with the latest version.
+- There is some problem with the `lfcShrinkage()` part. Second argument should be `coefs`, not `contrasts` if "apeglem" is to be used. "normal" should work with `contrasts`, and should be specified in the argument `type` of the funciton.
+- When I tried to use the `coefs`argument it failed.
+- This was because there was an error when releveling the group in the DDS object. "" were missing, so instead of releveling the "group" variable, it created a new one using the group variable, which then releveled, leaving the "group" variable to be converted to a factor automatically by DESeq2 when the function was run.
+- This caused that the reference level used for the comparision was wrong sometimes (depending on which level DESeq2 chose as reference automatically).
+- I fixed this by adding "group".
+- Now I need to find a way to use the results names (`resultNames()`) to define each `coef` in the `process_contrast()` function.
 - I don't need a specific environment to test this, I can just run and correct the script in my system deactivating conda/mamba.
 
 ### Change plots in the output

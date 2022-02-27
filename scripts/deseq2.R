@@ -35,6 +35,10 @@ countdata=counts_raw[,colnames(counts_raw) %in% rownames(coldata)]
 coldata=subset(coldata, row.names(coldata) %in% colnames(countdata))
 names(coldata)[which(names(coldata)==group)] = "group"
 
+### ATENCIó! Redefineixo el nivell per a què funcioni amb DESeq2 nou
+# Al final ho faig més avall, al seu propi apartat.
+# coldata[,"group"]<-relevel(factor(coldata[,"group"]),ref=control)
+
 save.image(file="workspace",)
 
 ##READ FILES ##
@@ -75,8 +79,9 @@ keep <- Reduce("|", lapply(bc_per_group, all_members))
 #keep <- rowSums(counts(dds,normalized=TRUE) >= 10) >= min(rle(as.vector(coldata$group))$lengths)
 dds <- dds[keep,] 
 
-## RELEVEL CONTROL GROUP ##
-dds[[group]] <- relevel(dds[["group"]], control)
+## RELEVEL CONTROL GROUP ## He corregit això perquè hi havia un error.
+
+dds[["group"]] <- relevel(dds[["group"]], control)
 
 ## DIFFERENTIAL ANALYSIS ##
 if (onlypca == F){
@@ -187,8 +192,11 @@ write.table( sweep(abs(pca$rotation), 2, colSums(abs(pca$rotation)), "/"), paste
 ## EXTRACT RESULTS ##
 process_contrast <- function(title, contrastos){
   resAll <- results(dds, cooksCutoff=TRUE,contrast=contrastos, parallel=TRUE)
-  res2 <- lfcShrink(dds, contrast = contrastos, res=resAll)
-  res <- subset(res2, abs(log2FoldChange) > log2(1.5))
+  # Adaptar al nou format de la fòrmula
+  # Es podria fer a partir dels contrastos.
+  res2 <- lfcShrink(dds, coef= , res=resAll)
+  res <- subset(resAll, #2
+                abs(log2FoldChange) > log2(1.5))
   resOrdered<- res[order(res$padj),]
   resAllOrdered <- resAll[order(resAll$padj),]
   ## EXTRACT COUNTS NORMALIZED ##
@@ -212,8 +220,9 @@ process_contrast <- function(title, contrastos){
   pass_filter <- as.numeric(as.numeric(rownames(resAllOrdered) %in% rownames(resOrdered)) & (resAllOrdered$padj<0.05) )
   df_all <- as.data.frame(resAllOrdered)
   df_all["filter"]<- pass_filter
-  df_all["shrunkenlfc"] = res2[rownames(df_all),"log2FoldChange"]
-  df_all <- df_all[,c("baseMean","log2FoldChange","shrunkenlfc","lfcSE","stat", "filter", "pvalue", "padj")]
+  #df_all["shrunkenlfc"] = res2[rownames(df_all),"log2FoldChange"]
+  df_all <- df_all[,c("baseMean","log2FoldChange",#"shrunkenlfc",
+                      "lfcSE","stat", "filter", "pvalue", "padj")]
   write.table(df_all,paste(project,"_", title,"_results.txt",sep=""),quote=FALSE)
   print("DE analysis finished")
 
@@ -241,7 +250,7 @@ process_contrast <- function(title, contrastos){
 if (onlypca == F){
   sapply(names(contrastos), function(x) process_contrast(x, contrastos[[x]]))  
 }
-# 
+ 
 
 
 
