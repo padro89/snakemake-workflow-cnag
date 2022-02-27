@@ -44,10 +44,10 @@ For every step of this project I'm going to use github for version control. Belo
 
 ### Modularize the deseq2 script inside snakemake
 
-- Arguments should be removed in favor of config files.
 - Ideally, one script per step.
 - Snakemake S4 objects should be used inside the scripts to get results from scripts run in other rules.
 - PCA should be shown first, and only afterwards should one run the complete Snakemake.
+- Output should be generated in Snakemake S4 objects so they can be properly organized.
 
 ### Implement the pathway analysis using Snakemake
 
