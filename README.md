@@ -23,7 +23,7 @@ For every step of this project I'm going to use github for version control. Belo
 
 - `setup`: A branch where I created the conda environment and tested the script.
 - `deseq2-script`: A branch where I try to implement the deseq2.R script in Snakemake.
-- `update-deseq2-version`: A branch where I will update the DESeq2 version in the script.
+- `deseq2-version`: A branch where I will update the DESeq2 version in the script.
 
 ## What I'd like to do
 
