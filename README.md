@@ -51,6 +51,12 @@ For every step of this project I'm going to use github for version control. Belo
 
 ### Implement the pathway analysis using Snakemake
 
+### Integrate Marc's alignment workflow
+
+### Add conda dependencies to the each step in the Snakemake workflow
+
+- There's a specific option in each rule.
+
 ### Update the  script to include DESeq latest version
 
 - There is some problem with the `lfcShrinkage()` part. Second argument should be `coefs`, not `contrasts`. Maybe if I fix this part it will work with the latest version.
