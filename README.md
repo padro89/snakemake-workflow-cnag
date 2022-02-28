@@ -42,7 +42,7 @@ For every step of this project I'm going to use github for version control. Belo
 - All the arguments were included in the config.ymal.
 - I implemented the R script using S4 objects in the script to make calls to Snakemake config.yaml.
 - Should I change anything about the output?
-- I MUST ADAPT THE PROCESSING OF THE CONTINUOUS VARIABLES, BUT I HAVE NONE. I SHOULD ASK FOR ONE EXAMPLE SO I GET WHAT THEY DO.
+- I MUST ADAPT THE PROCESSING OF THE CONTINUOUS VARIABLES, BUT I HAVE NONE. I SHOULD ASK FOR ONE EXAMPLE SO I GET WHAT THEY DO. They are probably adapted for graphics, so I could make a random continuous variable in the coldata and run the script to see where it fails and fix it.
 
 ### Modularize the deseq2 script inside snakemake
 

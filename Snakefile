@@ -19,7 +19,6 @@ rule all:
 
 configfile: "config.yaml"
 
-# Executing the Deseq2 script
 rule dge:
     input:
         "../testdata/counts_3",
@@ -27,3 +26,14 @@ rule dge:
     script:
         "scripts/deseq2.R"
     
+# Running the PCA
+rule PCA:
+    input:
+        "../testdata/counts_3",
+        "../testdata/info_3.txt"
+    output:
+        countdata = output.countdata,
+        coldata = output.coldata
+# Executing the Deseq2 script
+    script:
+        "scripts/PCA.R"
