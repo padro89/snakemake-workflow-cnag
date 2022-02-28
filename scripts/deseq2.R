@@ -1,3 +1,13 @@
+# Guardar el workspace per debugging amb snakemake
+# Netejar el workspace abans
+eliminats <- ls()
+eliminats <- eliminats[eliminats!="snakemake" & eliminats!="Snakemake"]
+rm(list=eliminats)
+rm(eliminats)
+# Guardar-lo amb només l'objecte snakemake actualitzat
+save.image(file="workspace",)
+
+
 # Load required libraries
 library("DESeq2")
 library("BiocParallel")
@@ -20,9 +30,16 @@ factors <- snakemake@config$factors
 continuous <- snakemake@config$continuous
 formula <- snakemake@config$formula
 contrastos <- snakemake@config$contrast
+shrinkage_method <-snakemake@config$shrinkage_method
 pca_atr <- snakemake@config$plot_atr$pca
 heatmap_atr <- snakemake@config$plot_atr$heatmap_ann
 de_genes_n <- snakemake@config$plot_atr$de_genes_n
+directory <- snakemake@config$directory
+
+# Create a results directory
+if(!file.exists(file.path(directory,"Results"))){
+  dir.create(file.path(directory,"Results"))
+}
 
 ## Import counts matrix and sample info ##
 counts_raw <- read.table(snakemake@input[[1]],
@@ -35,29 +52,35 @@ countdata=counts_raw[,colnames(counts_raw) %in% rownames(coldata)]
 coldata=subset(coldata, row.names(coldata) %in% colnames(countdata))
 names(coldata)[which(names(coldata)==group)] = "group"
 
-### ATENCIó! Redefineixo el nivell per a què funcioni amb DESeq2 nou
-# Al final ho faig més avall, al seu propi apartat.
-# coldata[,"group"]<-relevel(factor(coldata[,"group"]),ref=control)
-
-save.image(file="workspace",)
+## RELEVEL CONTROL GROUP ##
+coldata$group <- relevel(factor(coldata$group), ref=control)
+#dds[["group"]] <- relevel(dds[["group"]], control)
 
 ##READ FILES ##
 
 # Adapt info
 if (!is.null(factors)){
-  for (i in seq(length(names(factors)))){
+  for (i in seq(length(factors))){
     coldata[,factors[i]]=as.factor(coldata[,factors[i]])
   }
 }
 
-if (!is.null(continuous)){
-  for (i in seq(length(names(continuous)))){
-    levels_tmp <- paste(names(continuous)[i],seq(as.numeric(continuous[i][2])), sep="")
-    coldata[,continuous[i][1]] = cut(coldata[,continuous[i][1]],
-                                                as.numeric(continuous[i][2]),
-                                                labels=levels_tmp)
-  }
-}
+## Funció prèvia. Probablement s'hagi d'adaptar l'altra.
+#if (!is.null(continuous)){
+#  for (i in seq(length(names(continuous)))){
+#    levels_tmp <- paste(names(continuous)[i],seq(as.numeric(continuous[i][2])), sep="")
+#    coldata[,continuous[i][1]] = cut(coldata[,continuous[i][1]],
+#                                                as.numeric(continuous[i][2]),
+#                                                labels=levels_tmp)
+#  }
+#}
+
+#if (!is.null(continuous)){
+#  for (i in seq(length(continuous))){
+#    coldata[,continuous[i]] <- as.numeric(coldata[,continuous[i]])
+#  }
+#  
+#}
 
 #Sort names countdata as rownames in coldata
 countdata <- countdata[rownames(coldata)]
@@ -79,10 +102,6 @@ keep <- Reduce("|", lapply(bc_per_group, all_members))
 #keep <- rowSums(counts(dds,normalized=TRUE) >= 10) >= min(rle(as.vector(coldata$group))$lengths)
 dds <- dds[keep,] 
 
-## RELEVEL CONTROL GROUP ## He corregit això perquè hi havia un error.
-
-dds[["group"]] <- relevel(dds[["group"]], control)
-
 ## DIFFERENTIAL ANALYSIS ##
 if (onlypca == F){
   dds <- DESeq(dds, parallel=TRUE)  
@@ -97,7 +116,7 @@ if (onlypca == F){
 rld <- rlog(dds)
 #vsd <-varianceStabilizingTransformation(dds)
 rlogMat<-assay(rld)
-write.table(rlogMat, file = paste(project,"_rlogMat.txt",sep=""), quote = F)
+write.table(rlogMat, file = paste(file.path(directory,"Results/"),project,"_rlogMat.txt",sep=""), quote = F)
 #vstMat<-assay(vsd)
 
 #heatmap samples"
@@ -106,7 +125,7 @@ if (plot == T){
   sampleDistMatrix <- as.matrix(sampleDists)
   #colnames(sampleDistMatrix) <- NULL
   colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
-  pdf(paste(project,"_sampletosample_heatmap.pdf",sep=""),onefile=FALSE)
+  pdf(paste(file.path(directory,"Results/"),project,"_sampletosample_heatmap.pdf",sep=""),onefile=FALSE)
  #annotation_heatmap = as.data.frame(sapply(plot_atr$heatmap_ann,function(x) eval(parse(text=x))), row.names = colnames(coldata))
   annotation_heatmap=as.data.frame(colData(dds)[,heatmap_atr], row.names=row.names(colData(dds)))
   names(annotation_heatmap) = heatmap_atr
@@ -140,7 +159,7 @@ if (length(pca_atr)>1){
 #        theme(legend.title = element_blank()))
 #  dev.off()
 
-  pdf(paste(project,"_pca.pdf", sep=""))
+  pdf(paste(file.path(directory,"Results/"),project,"_pca.pdf", sep=""))
   print(ggplot()+geom_text(aes_string(x=pca$x[,dims[1,1]], y=pca$x[,dims[2,1]], color = color_factor, label = as.factor(rownames(pca$x))))+
     xlab(paste(colnames(pca$x)[1]," (",round(percentVar[1]*100,digits = 2),"%)",sep=''))+
     ylab(paste(colnames(pca$x)[2]," (",round(percentVar[2]*100,digits=2),"%)",sep=''))+
@@ -180,7 +199,7 @@ if (length(pca_atr)>1){
   
   dev.off()
 
-write.table( sweep(abs(pca$rotation), 2, colSums(abs(pca$rotation)), "/"), paste(project,'_pc_contribution.txt', sep=""), 
+write.table( sweep(abs(pca$rotation), 2, colSums(abs(pca$rotation)), "/"), paste(file.path(directory,"Results/"),project,'_pc_contribution.txt', sep=""), 
              sep = "\t", quote = F,row.names = T, col.names = T)
 
 }
@@ -191,12 +210,9 @@ write.table( sweep(abs(pca$rotation), 2, colSums(abs(pca$rotation)), "/"), paste
 
 ## EXTRACT RESULTS ##
 process_contrast <- function(title, contrastos){
-  resAll <- results(dds, cooksCutoff=TRUE,contrast=contrastos, parallel=TRUE)
-  # Adaptar al nou format de la fòrmula
-  # Es podria fer a partir dels contrastos.
-  res2 <- lfcShrink(dds, coef= , res=resAll)
-  res <- subset(resAll, #2
-                abs(log2FoldChange) > log2(1.5))
+  resAll <- results(dds, cooksCutoff=TRUE, contrast=contrastos, parallel=TRUE)
+  res2 <- lfcShrink(dds, contrast=contrastos , res=resAll, type=shrinkage_method)
+  res <- subset(res2, abs(log2FoldChange) > log2(1.5))
   resOrdered<- res[order(res$padj),]
   resAllOrdered <- resAll[order(resAll$padj),]
   ## EXTRACT COUNTS NORMALIZED ##
@@ -210,20 +226,20 @@ process_contrast <- function(title, contrastos){
   description_stats<-mcols(res)$description
   summary_stats<-summary(res)
   stats<-rbind(c(description_stats, summary_stats))
-  sink(paste(project,'_',title,"_stats.txt",sep=""))
+  sink(paste(file.path(directory,"Results/"),project,'_',title,"_stats.txt",sep=""))
   mcols(res)$description
   summary(res)
   sink()
   
   ## WRITE TABLE RESULTS ##
-  write.table(cc, paste(project,"_",title,"_norm_counts.txt",sep=""),quote=FALSE)
+  write.table(cc, paste(file.path(directory,"Results/"),project,"_",title,"_norm_counts.txt",sep=""),quote=FALSE)
   pass_filter <- as.numeric(as.numeric(rownames(resAllOrdered) %in% rownames(resOrdered)) & (resAllOrdered$padj<0.05) )
   df_all <- as.data.frame(resAllOrdered)
   df_all["filter"]<- pass_filter
-  #df_all["shrunkenlfc"] = res2[rownames(df_all),"log2FoldChange"]
+  df_all["shrunkenlfc"] = res2[rownames(df_all),"log2FoldChange"]
   df_all <- df_all[,c("baseMean","log2FoldChange",#"shrunkenlfc",
                       "lfcSE","stat", "filter", "pvalue", "padj")]
-  write.table(df_all,paste(project,"_", title,"_results.txt",sep=""),quote=FALSE)
+  write.table(df_all,paste(file.path(directory,"Results/"),project,"_", title,"_results.txt",sep=""),quote=FALSE)
   print("DE analysis finished")
 
   if ((plot == T) & (length(rownames(resOrdered))>=de_genes_n)){  
@@ -234,13 +250,13 @@ process_contrast <- function(title, contrastos){
     df=as.data.frame(data_subset[,heatmap_atr], row.names=row.names(data_subset))
     colnames(df)=c(heatmap_atr)
     
-    pdf(paste(project,"_",title,"_top50DEgenes_heatmap.pdf",sep=""),onefile=FALSE)
+    pdf(paste(file.path(directory,"Results/"),project,"_",title,"_top50DEgenes_heatmap.pdf",sep=""),onefile=FALSE)
     
     pheatmap(select2, fontsize_row=6,show_rownames=TRUE, cluster_rows=TRUE, cluster_cols=TRUE, annotation_col=df,scale="row", fontsize=4, show_colnames = FALSE)
     dev.off()
     print("top 50 DE genes heatmap done")
 
-    tiff(paste(project,"_heatmap_custom.tiff", sep=""), width=2000, height=2000, res=300)
+    tiff(paste(file.path(directory,"Results/"),project,"_heatmap_custom.tiff", sep=""), width=2000, height=2000, res=300)
     pheatmap(select2, fontsize_row=6,show_rownames=TRUE, cluster_rows=TRUE, cluster_cols=FALSE, annotation_col=df,scale="row", fontsize=4, show_colnames = TRUE)
     dev.off()
 

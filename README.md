@@ -34,6 +34,7 @@ For every step of this project I'm going to use github for version control. Belo
 - To create the environment, I ran `mamba env create -f <yaml_file>`.
 - I ran the deseq2.R script using Rscript and the arguments, and it worked flawlesly without any need of adding any packages.
 - If I need to  manually add a package, I'll add it to my conda environment yaml file.
+- After updating the deseq2 script I created a new environment with the up-to-date packages.
 
 ### Implement the deseq2 script
 
@@ -41,13 +42,14 @@ For every step of this project I'm going to use github for version control. Belo
 - All the arguments were included in the config.ymal.
 - I implemented the R script using S4 objects in the script to make calls to Snakemake config.yaml.
 - Should I change anything about the output?
+- I MUST ADAPT THE PROCESSING OF THE CONTINUOUS VARIABLES, BUT I HAVE NONE. I SHOULD ASK FOR ONE EXAMPLE SO I GET WHAT THEY DO.
 
 ### Modularize the deseq2 script inside snakemake
 
 - Ideally, one script per step.
 - Snakemake S4 objects should be used inside the scripts to get results from scripts run in other rules.
 - PCA should be shown first, and only afterwards should one run the complete Snakemake.
-- Output should be generated in Snakemake S4 objects so they can be properly organized.
+- Output is generated wherever is specified.
 
 ### Implement the pathway analysis using Snakemake
 
@@ -59,18 +61,18 @@ For every step of this project I'm going to use github for version control. Belo
 
 ### Update the  script to include DESeq latest version
 
-- There is some problem with the `lfcShrinkage()` part. Second argument should be `coefs`, not `contrasts` if "apeglem" is to be used. "normal" should work with `contrasts`, and should be specified in the argument `type` of the funciton.
+- There is some problem with the `lfcShrinkage()` part. Second argument should be `coefs`, not `contrasts` if "apeglem" is to be used. "normal" should work with `contrasts`, as well as "ashr", and should be specified in the argument `type` of the funciton.
 - When I tried to use the `coefs`argument it failed.
-- This was because there was an error when releveling the group in the DDS object. "" were missing, so instead of releveling the "group" variable, it created a new one using the group variable, which then releveled, leaving the "group" variable to be converted to a factor automatically by DESeq2 when the function was run.
-- This caused that the reference level used for the comparision was wrong sometimes (depending on which level DESeq2 chose as reference automatically).
-- I fixed this by adding "group".
-- Now I need to find a way to use the results names (`resultNames()`) to define each `coef` in the `process_contrast()` function.
-- I don't need a specific environment to test this, I can just run and correct the script in my system deactivating conda/mamba.
+- This was because there was an error when releveling the group in the DDS object. "" were missing, so instead of releveling the "group" variable, it created a new one using the group variable, which then releveled, leaving the "group" variable to be converted to a factor automatically by DESeq2 when the function was run. This caused that the names of the coefs in `resultsNames(dds)` did not match the name of the coef to use. I fixed this by adding "group".
+- Anyway, using "apeglm" with `coefs` did not allow for different comparisions, only for the ones in `resultsNames(dds)`, otherwise the dds object has to be created with the new reference level of interest (which is not very practical).
+- "ashr" should be just fine, so I added an option to use either "normal" or "ashr" in the `config.yaml`.
+- It now works with the latest version.
 
 ### Change plots in the output
 
 - Add volcano plots.
 - Modify the PCA using my own function.
+- Add the option to choose several variables for coloring.
 
 ### Implement the option to use limma instead of DESeq2
 
@@ -78,7 +80,7 @@ For every step of this project I'm going to use github for version control. Belo
 
 ### Implement the option to create a "Materials and Methods" file
 
-- It could export software versions.
+- It could export software versions. `sink(sessionInfo)`
 - It could generate the relevant bibliography in a .bib file.
 
 ### Some kind of comparation or Benchmark

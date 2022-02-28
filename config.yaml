@@ -20,26 +20,29 @@ path:
   quant: "/tmp"
 
 # DESeq2 parameters
-# Specify a list with the covariants to include
-factors: ["SEX"]
-continuous: [NULL]
-# Specify which variable contains the groups
+# Lists of covariants to include (or NULL).
+factors: ["CODE","GENE","SEX"]
+continuous: ["CONTINUA1","CONTINUA2"]
+# Variable that contains the groups
 group: "GROUP"
-# Specify the control group
+# Control group
 control: "Unaffected"
-# Specify if only PCA should be generated
+# Only PCA should be generated? (Boolean)
 onlypca: False
-# Specify a string with the formula to use for the model
+# String with the formula to use for the model
 formula: "~SEX + group"
-# Specify the contrasts as a list
+# Each contrast as a list (variable, experimental group, control group)
 contrast:
   affected_vs_unaffected: ["group","Affected","Unaffected"]
+# Shrinkage method (either "normal" or "ashr". "apeglm" not implemented)
+shrinkage_method: "ashr"
 # Whether plots shall be generated
 plot: True
-
 # Specify plot atributes
 plot_atr:
   pca: "group"
   heatmap_ann: "group"
-  # Numbern of genes to show in the heatmap
+  # Number of genes to show in the heatmap
   de_genes_n: 50
+# Dir where to create the results folder
+directory: "~/Test"

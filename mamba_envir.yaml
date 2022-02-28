@@ -1,2 +1,18 @@
-sources:
-  conda-forge
+name: cnag
+channels:
+  - conda-forge
+  - bioconda
+
+dependencies:
+  - snakemake
+  - r-base
+  - r-pheatmaps
+  - r-rcolorbrewer
+  - r-ggplot2
+  - r-gridextra
+  - r-r.methodss3
+  - r-ashr
+  - bioconductor-biobase
+  - bioconductor-genefilter
+  - bioconductor-deseq2
+  - bioconductor-biocparallel
