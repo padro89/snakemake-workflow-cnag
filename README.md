@@ -40,16 +40,41 @@ For every step of this project I'm going to use github for version control. Belo
 
 - I used the parameters defined in the config.R file in the config.yaml Snakemake file.
 - All the arguments were included in the config.ymal.
-- I implemented the R script using S4 objects in the script to make calls to Snakemake config.yaml.
+- I implemented the R script using S4 objects in the script to make calls to Snakemake config.yaml and to import the data from the input in the rule.
 - Should I change anything about the output?
 - I MUST ADAPT THE PROCESSING OF THE CONTINUOUS VARIABLES, BUT I HAVE NONE. I SHOULD ASK FOR ONE EXAMPLE SO I GET WHAT THEY DO. They are probably adapted for graphics, so I could make a random continuous variable in the coldata and run the script to see where it fails and fix it.
 
 ### Modularize the deseq2 script inside snakemake
 
-- Ideally, one script per step.
-- Snakemake S4 objects should be used inside the scripts to get results from scripts run in other rules.
+- I can save anything, for example, a PDF, as `snakemake@output$name`, and then call it from the output rule:
+
+Script:
+```
+pdf(snakemake@output$result)
+do_something()
+dev.off()
+```
+
+Snakemake rule:
+```
+    output:
+        result = "some/location/file.pdf"
+```
+And it works. Now I just need to implement every output like this. 
+
+- ~If I run this with the output created in the snakemake folder, everything works fine. If I don't, somehow it creates the files but then says the files are missing.~ It turns out that the only problem was writing "~/". Full paths must be used.
+- ~For some reason, this didn't work with the function `write.table()`~. It does, I just have to specify the argument `file=`.
+- I should try to use the same method to save objects in temporary locations like the dds object.
+- If this is possible, I would like to create a first script that creates a dds file, and the rest of scripts just import it (or update the formula). **A disadvantage of this is that I may have to load DESeq2 library many times**.
 - PCA should be shown first, and only afterwards should one run the complete Snakemake.
-- Output is generated wherever is specified.
+- When running the PCA, if `pca_atr` is blank it should run groups by default.
+
+```
+if(pca_atr==NULL){
+    pca_atr=="group"
+}
+```
+- I have to update the libraries needed in the PCA script so it takes less time to charge.
 
 ### Implement the pathway analysis using Snakemake
 

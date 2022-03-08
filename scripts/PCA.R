@@ -1,11 +1,11 @@
 # Guardar el workspace per debugging amb snakemake
 # Netejar el workspace abans
-eliminats <- ls()
-eliminats <- eliminats[eliminats!="snakemake" & eliminats!="Snakemake"]
-rm(list=eliminats)
-rm(eliminats)
+#eliminats <- ls()
+#eliminats <- eliminats[eliminats!="snakemake" & eliminats!="Snakemake"]
+#rm(list=eliminats)
+#rm(eliminats)
 # Guardar-lo amb només l'objecte snakemake actualitzat
-save.image(file="workspace",)
+#save.image(file="workspace",)
 
 # Load required libraries
 library("DESeq2")
@@ -27,26 +27,19 @@ plot <- snakemake@config$plot
 factors <- snakemake@config$factors
 continuous <- snakemake@config$continuous
 pca_atr <- snakemake@config$plot_atr$pca
-directory <- snakemake@config$directory
-formula <- snakemake@config$formula
+directory <- snakemake@config$path$pca
+heatmap_atr <- snakemake@config$plot_atr$heatmap_ann
 
 # No s'utilitzen
-contrastos <- snakemake@config$contrast
-shrinkage_method <-snakemake@config$shrinkage_method
-heatmap_atr <- snakemake@config$plot_atr$heatmap_ann
-de_genes_n <- snakemake@config$plot_atr$de_genes_n
-onlypca <- snakemake@config$onlypca
-
-# Create a results directory
-if(!file.exists(file.path(directory,"Results"))){
-  dir.create(file.path(directory,"Results"))
-}
+# contrastos <- snakemake@config$contrast
+# shrinkage_method <-snakemake@config$shrinkage_method
+# formula <- snakemake@config$formula
 
 ## Import counts matrix and sample info ##
-counts_raw <- read.table(snakemake@input[[1]],
+counts_raw <- read.table(snakemake@input[["counts"]],
                          header = T, row.names = 1,
                          check.names = F)
-info_raw <- read.table(snakemake@input[[2]],
+info_raw <- read.table(snakemake@input[["info"]],
                        header = T, row.names = 1)
 coldata=subset(info_raw, row.names(info_raw) %in% colnames(counts_raw))
 countdata=counts_raw[,colnames(counts_raw) %in% rownames(coldata)]
@@ -85,10 +78,6 @@ if (!is.null(factors)){
 #Sort names countdata as rownames in coldata
 countdata <- countdata[rownames(coldata)]
 
-# Save the output to run dds once a formula is decided
-snakemake@output[["coldata"]]<-coldata
-snakemake@output[["countdata"]]<-countdata
-
 ## BATCH EFFECT ##
 dds <- DESeqDataSetFromMatrix(countData = countdata,
                               colData = coldata,
@@ -114,7 +103,8 @@ dds <- dds[keep,]
 rld <- rlog(dds)
 #vsd <-varianceStabilizingTransformation(dds)
 rlogMat<-assay(rld)
-write.table(rlogMat, file = paste(file.path(directory,"Results/"),project,"_rlogMat.txt",sep=""), quote = F)
+write.table(rlogMat, file = snakemake@output$rlog # paste(file.path(directory,"Results/"),project,"_rlogMat.txt",sep="")
+            , quote = F)
 #vstMat<-assay(vsd)
 
 #heatmap samples"
@@ -123,7 +113,9 @@ if (plot == T){
   sampleDistMatrix <- as.matrix(sampleDists)
   #colnames(sampleDistMatrix) <- NULL
   colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
-  pdf(paste(file.path(directory,"Results/"),project,"_sampletosample_heatmap.pdf",sep=""),onefile=FALSE)
+  pdf(snakemake@output$sampletosample,
+    # paste(file.path(directory,"Results/"),project,"_sampletosample_heatmap.pdf",sep=""),
+      onefile=FALSE)
   #annotation_heatmap = as.data.frame(sapply(plot_atr$heatmap_ann,function(x) eval(parse(text=x))), row.names = colnames(coldata))
   annotation_heatmap=as.data.frame(colData(dds)[,heatmap_atr], row.names=row.names(colData(dds)))
   names(annotation_heatmap) = heatmap_atr
@@ -157,7 +149,7 @@ if (plot == T){
   #        theme(legend.title = element_blank()))
   #  dev.off()
   
-  pdf(paste(file.path(directory,"Results/"),project,"_pca.pdf", sep=""))
+  pdf(snakemake@output$pcas)    #(paste(file.path(directory,"Results/"),project,"_pca.pdf", sep=""))
   print(ggplot()+geom_text(aes_string(x=pca$x[,dims[1,1]], y=pca$x[,dims[2,1]], color = color_factor, label = as.factor(rownames(pca$x))))+
           xlab(paste(colnames(pca$x)[1]," (",round(percentVar[1]*100,digits = 2),"%)",sep=''))+
           ylab(paste(colnames(pca$x)[2]," (",round(percentVar[2]*100,digits=2),"%)",sep=''))+
@@ -197,7 +189,10 @@ if (plot == T){
   
   dev.off()
   
-  write.table( sweep(abs(pca$rotation), 2, colSums(abs(pca$rotation)), "/"), paste(file.path(directory,"Results/"),project,'_pc_contribution.txt', sep=""), 
-               sep = "\t", quote = F,row.names = T, col.names = T)
+  write.table(sweep(abs(pca$rotation), 2, colSums(abs(pca$rotation)), "/"),
+              file = snakemake@output$pc_contribution,
+              # paste(file.path(directory,"Results/"),project,'_pc_contribution.txt', sep=""), 
+              sep = "\t", quote = F,row.names = T, col.names = T)
   
 }
+saveRDS(dds, file = snakemake@output$dds)

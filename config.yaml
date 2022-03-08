@@ -18,6 +18,7 @@ path:
   trim: "/tmp"
   map: "/tmp"
   quant: "/tmp"
+  pca: "~/Test"
 
 # DESeq2 parameters
 # Lists of covariants to include (or NULL).
