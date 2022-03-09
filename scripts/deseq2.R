@@ -40,7 +40,7 @@ directory <- snakemake@config$directory
 ################## CONTRASTS FROM NOW ###############################################
 
 load(snakemake@input$dds)
-dds@design<-snakemake@config$formula
+dds@design <- snakemake@config$formula
 
 
 ## EXTRACT RESULTS ##

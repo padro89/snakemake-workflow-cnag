@@ -38,7 +38,6 @@ rule PCA:
         temp("/home/joan/Test/Results/dds.Rds")
     script:
         "scripts/PCA.R"
-
 rule dge: 
     input:
         dds = "/home/joan/Test/Results/dds.Rds"

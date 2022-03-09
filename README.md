@@ -68,7 +68,6 @@ And it works. Now I just need to implement every output like this.
 - If this is possible, I would like to create a first script that creates a dds file, and the rest of scripts just import it (or update the formula). **A disadvantage of this is that I may have to load DESeq2 library many times**.
 - PCA should be shown first, and only afterwards should one run the complete Snakemake.
 - When running the PCA, if `pca_atr` is blank it should run groups by default.
-
 ```
 if(pca_atr==NULL){
     pca_atr=="group"
@@ -78,7 +77,24 @@ if(pca_atr==NULL){
 
 ### Implement the pathway analysis using Snakemake
 
+- The pathway analysis is performed with g:Profiler.
+- Both ORA and GSEA are carried out, I have a script for each of them.
+- ORA: 
+  - For the DGE list, I take the genes that are differentialy expressed (they may have a column "Filter" if the analysis is run with DESeq2).
+  - I then get the ENSEMBL ID. It may have a last number after a point I should remove, this happens with *Mus musculus* and *Homo sapiens* samples. I can use awk for this.
+  - With the ENSEMBL ID I can use a GMT file that contains all the pathways for the organism.
+  - There is no need to select a Universe, g:Profiler uses one automatically.
+- GSEA:
+  - I need to indicate the column that contains the statistic in the DGE list in order to rank the genes. 
+  - Maybe it would be interesting to create some graphs, like in the GSEA, like those in the REVIGO.
+
 ### Integrate Marc's alignment workflow
+
+- He uses a FLI file with the samples. I'm not sure if I can include it in the config file, but it would probably be more useful as an input file.
+
+### Integrate everything toghether
+- I should probably make subworkflows for different options in the config.
+- Should I use the config for everything, or should I use params?
 
 ### Add conda dependencies to the each step in the Snakemake workflow
 
@@ -89,15 +105,28 @@ if(pca_atr==NULL){
 - There is some problem with the `lfcShrinkage()` part. Second argument should be `coefs`, not `contrasts` if "apeglem" is to be used. "normal" should work with `contrasts`, as well as "ashr", and should be specified in the argument `type` of the funciton.
 - When I tried to use the `coefs`argument it failed.
 - This was because there was an error when releveling the group in the DDS object. "" were missing, so instead of releveling the "group" variable, it created a new one using the group variable, which then releveled, leaving the "group" variable to be converted to a factor automatically by DESeq2 when the function was run. This caused that the names of the coefs in `resultsNames(dds)` did not match the name of the coef to use. I fixed this by adding "group".
-- Anyway, using "apeglm" with `coefs` did not allow for different comparisions, only for the ones in `resultsNames(dds)`, otherwise the dds object has to be created with the new reference level of interest (which is not very practical).
-- "ashr" should be just fine, so I added an option to use either "normal" or "ashr" in the `config.yaml`.
+- Using "apeglm" with `coefs` did not allow for different comparisions, only for the ones in `resultsNames(dds)`, otherwise the dds object has to be created with the new reference level of interest (which is not very practical).
+- I have found a post discussing this (https://support.bioconductor.org/p/123247/) and I can use something like this to avoid running DSeq2 again:
+```
+dds <- makeExampleDESeqDataSet()
+dds$condition <- factor(rep(1:3,each=4)) # suppose 3 groups
+dds <- DESeq(dds)
+resultsNames(dds)
+[1] "Intercept"        "condition_2_vs_1" "condition_3_vs_1"
+dds$condition <- relevel(dds$condition, "2")
+dds <- nbinomWaldTest(dds)
+resultsNames(dds)
+[1] "Intercept"        "condition_1_vs_2" "condition_3_vs_2"
+lfc <- lfcShrink(dds, coef="condition_3_vs_2", type="apeglm")
+```
+- "ashr" should be just fine, so I added an option to use either "normal" or "ashr" in the `config.yaml`. If I can implement "apeglm" I should make an additional option.
 - It now works with the latest version.
 
 ### Change plots in the output
 
 - Add volcano plots.
 - Modify the PCA using my own function.
-- Add the option to choose several variables for coloring.
+- Add the option to choose any variables for coloring (including continuous variables, that should be factorized for this).
 
 ### Implement the option to use limma instead of DESeq2
 
@@ -110,4 +139,9 @@ if(pca_atr==NULL){
 
 ### Some kind of comparation or Benchmark
 
+- Maybe I can compare DESeq2 and limma, or GSEA and ORA.
+- Maybe I can compare different programs.
+
 ### Implement a different README.md file explaining how everything works.
+
+- This file, but for the moment it only contains everything I do and learn.
