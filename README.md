@@ -82,6 +82,7 @@ if(pca_atr==NULL){
 - ORA: 
   - For the DGE list, I take the genes that are differentialy expressed (they may have a column "Filter" if the analysis is run with DESeq2).
   - I then get the ENSEMBL ID. It may have a last number after a point I should remove, this happens with *Mus musculus* and *Homo sapiens* samples. I can use awk for this.
+  - If instead of ENSEMBL, GENEID is used, the split should be done always before the comma.
   - With the ENSEMBL ID I can use a GMT file that contains all the pathways for the organism.
   - There is no need to select a Universe, g:Profiler uses one automatically.
 - GSEA:
@@ -95,6 +96,7 @@ if(pca_atr==NULL){
 ### Integrate everything toghether
 - I should probably make subworkflows for different options in the config.
 - Should I use the config for everything, or should I use params?
+- I can use Python `if()` inside any rule to change the workflow according to specified parameters.
 
 ### Add conda dependencies to the each step in the Snakemake workflow
 
