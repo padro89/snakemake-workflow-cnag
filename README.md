@@ -89,7 +89,7 @@ rule B:
     temp(dds = "/some/location/dds")
 ```
 
-For some reason this doesn't work. The `temp()` function interprets de `dds =` as an argument. I don't know how to use the output inside this funciton.
+~For some reason this doesn't work. The `temp()` function interprets de `dds =` as an argument. I don't know how to use the output inside this function.~ The correct syntax in the output is `dds = temp("/file/location")`.
 
 - If this is possible, I would like to create a first script that creates a dds file, and the rest of scripts just import it (or update the formula). **A disadvantage of this is that I may have to load DESeq2 library many times**.
 - PCA should be shown first, and only afterwards should one run the complete Snakemake.
@@ -101,7 +101,14 @@ if(pca_atr==NULL){
 ```
 - I have to update the libraries needed in the PCA script so it takes less time to charge.
 - It works like this: First, a PCA is run, generating the graphs and the rlogMat.txt file, as well as other relevant files and the dds.
-- The dds file is then passed as input, toghether with the rlogMat.txt file, to perform the DGE.
+- The dds file is then passed as input to a design rule, that runs `DESeq()` function using the specified formula. 
+- This toghether with the rlogMat.txt file is used in the DGE rule to perform the DGE.
+- **I don't know how to run the DGE script for every comparision.**
+  - I can keep the function in the script that runs it for every comparision, but I don't know how to save it with different names.
+  - I can just run the script once for every comparission, but I don't know how to do it.
+- Everytime a comparation is performed, a new normalized counts file is created and saved. I changed it to save it only if it's NULL. 
+  - I should definetely use wildcards to save each output of the snakemake object into different filenames.
+  - I should be able to specify several variables for the PCA so it runs the PCA coloring for each variable FROM THE START.
 
 ### Implement the pathway analysis using Snakemake
 

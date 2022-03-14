@@ -44,12 +44,6 @@ info_raw <- read.table(snakemake@input[["info"]],
 coldata=subset(info_raw, row.names(info_raw) %in% colnames(counts_raw))
 countdata=counts_raw[,colnames(counts_raw) %in% rownames(coldata)]
 coldata=subset(coldata, row.names(coldata) %in% colnames(countdata))
-names(coldata)[which(names(coldata)==group)] = "group"
-
-## RELEVEL CONTROL GROUP ##
-coldata$group <- relevel(factor(coldata$group), ref=control)
-
-##READ FILES ##
 
 # Adapt info
 if (!is.null(factors)){
@@ -74,6 +68,12 @@ if (!is.null(factors)){
 #  }
 #  
 #}
+
+names(coldata)[which(names(coldata)==group)] = "group"
+
+## RELEVEL CONTROL GROUP ##
+coldata$group <- relevel(factor(coldata$group), ref=control)
+
 
 #Sort names countdata as rownames in coldata
 countdata <- countdata[rownames(coldata)]
