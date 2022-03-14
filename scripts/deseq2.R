@@ -1,11 +1,11 @@
 # Guardar el workspace per debugging amb snakemake
 # Netejar el workspace abans
-eliminats <- ls()
-eliminats <- eliminats[eliminats!="snakemake" & eliminats!="Snakemake"]
-rm(list=eliminats)
-rm(eliminats)
+#eliminats <- ls()
+#eliminats <- eliminats[eliminats!="snakemake" & eliminats!="Snakemake"]
+#rm(list=eliminats)
+#rm(eliminats)
 # Guardar-lo amb només l'objecte snakemake actualitzat
-save.image(file="workspace",)
+# save.image(file="workspace",)
 
 
 # Load required libraries
@@ -39,9 +39,11 @@ directory <- snakemake@config$directory
 
 ################## CONTRASTS FROM NOW ###############################################
 
+rlogMat <- as.matrix(read.table(snakemake@input$rlogmat,
+                                header = T, row.names = 1))
 load(snakemake@input$dds)
-dds@design <- snakemake@config$formula
-
+dds@design <- formula(snakemake@config$formula)
+dds <- DESeq(dds, parallel=TRUE)
 
 ## EXTRACT RESULTS ##
 process_contrast <- function(title, contrastos){
@@ -61,7 +63,7 @@ process_contrast <- function(title, contrastos){
   description_stats<-mcols(res)$description
   summary_stats<-summary(res)
   stats<-rbind(c(description_stats, summary_stats))
-  sink(paste(file.path(directory,"Results/"),project,'_',title,"_stats.txt",sep=""))
+  sink(snakemake@output$stats)
   mcols(res)$description
   summary(res)
   sink()
@@ -72,7 +74,7 @@ process_contrast <- function(title, contrastos){
   df_all <- as.data.frame(resAllOrdered)
   df_all["filter"]<- pass_filter
   df_all["shrunkenlfc"] = res2[rownames(df_all),"log2FoldChange"]
-  df_all <- df_all[,c("baseMean","log2FoldChange",#"shrunkenlfc",
+  df_all <- df_all[,c("baseMean","log2FoldChange","shrunkenlfc",
                       "lfcSE","stat", "filter", "pvalue", "padj")]
   write.table(df_all,paste(file.path(directory,"Results/"),project,"_", title,"_results.txt",sep=""),quote=FALSE)
   print("DE analysis finished")

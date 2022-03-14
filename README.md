@@ -64,7 +64,33 @@ And it works. Now I just need to implement every output like this.
 
 - ~If I run this with the output created in the snakemake folder, everything works fine. If I don't, somehow it creates the files but then says the files are missing.~ It turns out that the only problem was writing "~/". Full paths must be used.
 - ~For some reason, this didn't work with the function `write.table()`~. It does, I just have to specify the argument `file=`.
-- I should try to use the same method to save objects in temporary locations like the dds object.
+- I should try to use the same method to save objects in temporary locations like the dds object. Teoretically, I should just:
+
+In R
+```
+save(dds, file = snakemake@output$dds)
+```
+
+In Snakemake
+```
+rule A:
+  input: dds = "/some/location/dds"
+  script: someRscript.R
+
+rule B:
+  input: "/some/input"
+  output:
+    temp(dds = "/some/location/dds")
+
+## This doesn't work either
+rule B:
+  input: "/some/input"
+  output:
+    temp(dds = "/some/location/dds")
+```
+
+For some reason this doesn't work. The `temp()` function interprets de `dds =` as an argument. I don't know how to use the output inside this funciton.
+
 - If this is possible, I would like to create a first script that creates a dds file, and the rest of scripts just import it (or update the formula). **A disadvantage of this is that I may have to load DESeq2 library many times**.
 - PCA should be shown first, and only afterwards should one run the complete Snakemake.
 - When running the PCA, if `pca_atr` is blank it should run groups by default.
@@ -74,6 +100,8 @@ if(pca_atr==NULL){
 }
 ```
 - I have to update the libraries needed in the PCA script so it takes less time to charge.
+- It works like this: First, a PCA is run, generating the graphs and the rlogMat.txt file, as well as other relevant files and the dds.
+- The dds file is then passed as input, toghether with the rlogMat.txt file, to perform the DGE.
 
 ### Implement the pathway analysis using Snakemake
 

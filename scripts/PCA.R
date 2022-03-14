@@ -1,11 +1,11 @@
 # Guardar el workspace per debugging amb snakemake
 # Netejar el workspace abans
-#eliminats <- ls()
-#eliminats <- eliminats[eliminats!="snakemake" & eliminats!="Snakemake"]
-#rm(list=eliminats)
-#rm(eliminats)
+eliminats <- ls()
+eliminats <- eliminats[eliminats!="snakemake" & eliminats!="Snakemake"]
+rm(list=eliminats)
+rm(eliminats)
 # Guardar-lo amb només l'objecte snakemake actualitzat
-#save.image(file="workspace",)
+save.image(file="workspace",)
 
 # Load required libraries
 library("DESeq2")
@@ -195,4 +195,5 @@ if (plot == T){
               sep = "\t", quote = F,row.names = T, col.names = T)
   
 }
-saveRDS(dds, file = snakemake@output$dds)
+save(dds, file = snakemake@output$dds)
+
