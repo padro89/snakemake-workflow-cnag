@@ -1,3 +1,9 @@
+def get_contrast(wildcards):
+    return config["contrasts"][wildcards.contrast]
+
+def get_final_output(wildcards):
+    pass
+
 # Mapping workflow
 """# Including rules
 include: "rules/common.smk"
@@ -21,23 +27,31 @@ configfile: "config.yaml"
 
 rule all:
     input:
-        "../testdata/counts_3",
-        "../testdata/info_3.txt"
+        stats = expand("/home/joan/Test/Results/{contrast}_stats.txt",
+            contrast=config["contrasts"]),
+        norm_counts = expand("/home/joan/Test/Results/{contrast}_norm_counts.txt",
+            contrast=config["contrasts"]),
+        deg_results = expand("/home/joan/Test/Results/{contrast}_deg_results.txt",
+            contrast=config["contrasts"]),
+        topDEgenes_heatmap = expand("/home/joan/Test/Results/{contrast}_top50DEgenes_heatmap.pdf",
+            contrast=config["contrasts"]),
+        heatmap_custom = expand("/home/joan/Test/Results/{contrast}_topgenes_heatmap.tiff",
+            contrast=config["contrasts"])
 
 # Running de DGE analysis with DESeq2
 
 rule dge: 
     input:
         dds_design = "/home/joan/Test/Results/dds_design",
-        rlogmat = "/home/joan/Test/Results/rlogMat.txt"
-    params: 
-        contrast = config["contrast"]
+        rlogmat = "/home/joan/Test/Results/rlogMat.txt",
     output:
-        stats = f"/home/joan/Test/Results/stats.txt",
-        norm_counts = f"/home/joan/Test/Results/norm_counts.txt",
-        deg_results = f"/home/joan/Test/Results/deg_results.txt",
-        topDEgenes_heatmap = f"/home/joan/Test/Results/top50DEgenes_heatmap.pdf",
-        heatmap_custom = f"/home/joan/Test/Results/topgenes_heatmap.tiff",
+        stats = "/home/joan/Test/Results/{contrast}_stats.txt",
+        norm_counts = "/home/joan/Test/Results/{contrast}_norm_counts.txt",
+        deg_results = "/home/joan/Test/Results/{contrast}_deg_results.txt",
+        topDEgenes_heatmap = "/home/joan/Test/Results/{contrast}_top50DEgenes_heatmap.pdf",
+        heatmap_custom = "/home/joan/Test/Results/{contrast}_topgenes_heatmap.tiff",
+    params: 
+        contrast = get_contrast,
     script:
         "scripts/deseq2.R"
 

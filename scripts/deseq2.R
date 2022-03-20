@@ -7,7 +7,6 @@
 # Guardar-lo amb només l'objecte snakemake actualitzat
 save.image(file="workspace")
 
-
 # Load required libraries
 library("DESeq2")
 library("BiocParallel")
@@ -27,7 +26,6 @@ plot <- snakemake@config$plot
 shrinkage_method <-snakemake@config$shrinkage_method
 heatmap_atr <- snakemake@config$plot_atr$heatmap_ann
 de_genes_n <- snakemake@config$plot_atr$de_genes_n
-contrastos <- snakemake@config$contrast
 
 # No s'utilitzen
 # onlypca <- snakemake@config$onlypca
@@ -45,10 +43,12 @@ contrastos <- snakemake@config$contrast
 load(snakemake@input$dds_design)
 rlogMat <- as.matrix(read.table(snakemake@input$rlogmat,
                                 header = T, row.names = 1))
+contrast <- c("group",snakemake@params$contrast)
+
 
 ## EXTRACT RESULTS ##
-resAll <- results(dds, cooksCutoff=TRUE, contrast=snakemake@config$contrast[[1]], parallel=TRUE)
-res2 <- lfcShrink(dds, contrast=snakemake@input$contrast[[1]] , res=resAll, type=shrinkage_method)
+resAll <- results(dds, cooksCutoff=TRUE, contrast=contrast, parallel=TRUE)
+res2 <- lfcShrink(dds, contrast=contrast, res=resAll, type=shrinkage_method)
 res <- subset(res2, abs(log2FoldChange) > log2(1.5))
 resOrdered<- res[order(res$padj),]
 resAllOrdered <- resAll[order(resAll$padj),]
@@ -56,7 +56,7 @@ resAllOrdered <- resAll[order(resAll$padj),]
 ## EXTRACT COUNTS NORMALIZED ##
 c=counts(dds,normalized=TRUE)
 c_ordered=c[rownames(resAllOrdered),]
-colnames(c_ordered)=paste(dds[[contrastos[1]]],",",colnames(c_ordered),sep="")
+colnames(c_ordered)=paste(dds[[contrast[1]]],",",colnames(c_ordered),sep="")
 counts_dds=(c_ordered[,order(colnames(c_ordered))])
 cc=round(counts_dds,digits=2)
   
@@ -82,7 +82,7 @@ print("DE analysis finished")
 
 if ((plot == T) & (length(rownames(resOrdered))>=de_genes_n)){  
   select=rlogMat[rownames(resOrdered),][1:de_genes_n,]
-  data_subset=subset(colData(dds), dds[[contrastos[1]]] %in% c(contrastos[3], contrastos[2]))
+  data_subset=subset(colData(dds), dds[[contrast[1]]] %in% c(contrast[3], contrast[2]))
   select2=select[,row.names(data_subset)]
   
   df=as.data.frame(data_subset[,heatmap_atr], row.names=row.names(data_subset))
@@ -101,7 +101,7 @@ if ((plot == T) & (length(rownames(resOrdered))>=de_genes_n)){
 } else {
   if ((plot == T) & (length(rownames(resOrdered))>= 25)){
     select=rlogMat[rownames(resOrdered),][1:length(rownames(resOrdered)),]
-    data_subset=subset(colData(dds), dds[[contrastos[1]]] %in% c(contrastos[3], contrastos[2]))
+    data_subset=subset(colData(dds), dds[[contrast[1]]] %in% c(contrast[3], contrast[2]))
     select2=select[,row.names(data_subset)]
     
     df=as.data.frame(data_subset[,heatmap_atr], row.names=row.names(data_subset))

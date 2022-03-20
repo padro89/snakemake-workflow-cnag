@@ -25,7 +25,7 @@ path:
 factors: ["CODE","GENE","SEX","GROUP","GROUP_DUMMY"]
 continuous: ["CONTINUA1","CONTINUA2"]
 # Variable that contains the groups
-group: "GROUP"
+group: "GROUP_DUMMY"
 # group: "GROUP_DUMMY"
 # Control group
 control: "Unaffected"
@@ -34,11 +34,20 @@ onlypca: False
 # String with the formula to use for the model
 formula: "~SEX + group"
 # Each contrast as a list (variable, experimental group, control group)
-contrast:
-  affected_vs_unaffected: ["group","Affected","Unaffected"]
-#  mild_vs_unaffected: ["group","Mild","Unaffected"]
-#  severe_vs_unaffected: ["group","Severe","Unaffected"]
-#  mild_vs_severe: ["group","Mild","Severe"]
+contrasts:
+  #affected_vs_unaffected: 
+  #  - Affected
+  #  - Unaffected
+  mild_vs_unaffected: 
+    - Mild
+    - Unaffected
+  severe_vs_unaffected:
+    - Severe
+    - Unaffected
+  mild_vs_severe:
+    - Mild
+    - Severe
+
 # Shrinkage method (either "normal" or "ashr". "apeglm" not implemented)
 shrinkage_method: "ashr"
 # Whether plots shall be generated

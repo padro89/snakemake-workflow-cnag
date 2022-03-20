@@ -24,6 +24,8 @@ For every step of this project I'm going to use github for version control. Belo
 - `setup`: A branch where I created the conda environment and tested the script.
 - `deseq2-script`: A branch where I try to implement the deseq2.R script in Snakemake.
 - `deseq2-version`: A branch where I will update the DESeq2 version in the script.
+- `deseq2-modular`: A branch where I try to modularize the DESeq2 script.
+- `pathway_analysis`: A branch where I will try to create a pathway analysis.
 
 ## What I'd like to do
 
@@ -38,13 +40,15 @@ For every step of this project I'm going to use github for version control. Belo
 
 ### Implement the deseq2 script
 
-- I used the parameters defined in the config.R file in the config.yaml Snakemake file.
+- I ported the parameters defined in the config.R file in the config.yaml Snakemake file.
 - All the arguments were included in the config.ymal.
 - I implemented the R script using S4 objects in the script to make calls to Snakemake config.yaml and to import the data from the input in the rule.
 - Should I change anything about the output?
 - I MUST ADAPT THE PROCESSING OF THE CONTINUOUS VARIABLES, BUT I HAVE NONE. I SHOULD ASK FOR ONE EXAMPLE SO I GET WHAT THEY DO. They are probably adapted for graphics, so I could make a random continuous variable in the coldata and run the script to see where it fails and fix it.
 
 ### Modularize the deseq2 script inside snakemake
+
+#### Saving the output
 
 - I can save anything, for example, a PDF, as `snakemake@output$name`, and then call it from the output rule:
 
@@ -64,6 +68,9 @@ And it works. Now I just need to implement every output like this.
 
 - ~If I run this with the output created in the snakemake folder, everything works fine. If I don't, somehow it creates the files but then says the files are missing.~ It turns out that the only problem was writing "~/". Full paths must be used.
 - ~For some reason, this didn't work with the function `write.table()`~. It does, I just have to specify the argument `file=`.
+
+#### Saving temporary files
+
 - I should try to use the same method to save objects in temporary locations like the dds object. Teoretically, I should just:
 
 In R
@@ -91,24 +98,77 @@ rule B:
 
 ~For some reason this doesn't work. The `temp()` function interprets de `dds =` as an argument. I don't know how to use the output inside this function.~ The correct syntax in the output is `dds = temp("/file/location")`.
 
-- If this is possible, I would like to create a first script that creates a dds file, and the rest of scripts just import it (or update the formula). **A disadvantage of this is that I may have to load DESeq2 library many times**.
-- PCA should be shown first, and only afterwards should one run the complete Snakemake.
+#### Starting modularization
+
+##### PCA
+
+- PCA should be shown first, and only afterwards should one run the complete Snakemake. In order to do this, I created a different script, called `PCA.R`.
+- This script creates the dds file with a null formula to create the PCA from it, and the rest of scripts just import it (or update the formula). **A disadvantage of this is that I may have to load DESeq2 library many times**.
 - When running the PCA, if `pca_atr` is blank it should run groups by default.
 ```
 if(pca_atr==NULL){
     pca_atr=="group"
 }
 ```
+- I should be able to specify several variables for the PCA so it runs the PCA coloring for each variable FROM THE START.
 - I have to update the libraries needed in the PCA script so it takes less time to charge.
 - It works like this: First, a PCA is run, generating the graphs and the rlogMat.txt file, as well as other relevant files and the dds.
-- The dds file is then passed as input to a design rule, that runs `DESeq()` function using the specified formula. 
-- This toghether with the rlogMat.txt file is used in the DGE rule to perform the DGE.
-- **I don't know how to run the DGE script for every comparision.**
-  - I can keep the function in the script that runs it for every comparision, but I don't know how to save it with different names.
-  - I can just run the script once for every comparission, but I don't know how to do it.
-- Everytime a comparation is performed, a new normalized counts file is created and saved. I changed it to save it only if it's NULL. 
-  - I should definetely use wildcards to save each output of the snakemake object into different filenames.
-  - I should be able to specify several variables for the PCA so it runs the PCA coloring for each variable FROM THE START.
+
+##### Updating the design formula.
+
+- A script called `deseq2_design.R` is used for this.
+- The dds file is passed as input and it runs `DESeq()` function using the specified formula. 
+- It creates a new temporary file called `dds_design`.
+
+##### Running the DGEA
+
+- A third script, simply called `deseq2.R` uses the `dds_design` object and the `rlogMat.txt` file.
+- In order to run multiple comparisions, the contrasts must be specified in the `config.yaml` like this:
+
+```
+contrasts:
+  contrast1:
+    - Group 1
+    - Group 2
+```
+- Then I can use each contrast in the script by using params:
+
+```
+rule dge:
+  input: 
+    "/some/input",
+  output:
+    "/some/{contrast}_output",
+  params:
+    contrast = get_contrast
+  script:
+    "some_script.R"
+  ```
+
+- To use the contrasts in the params, I created a specific function that gets each contrast:
+
+```
+def get_contrast(wildcards):
+  return config["contrasts"][wildcards.contrast]
+```
+- The problem with wildcards is, if I want to check if it works, I must run the all rule with the wildcards in it, or otherwise it won't work:
+
+```
+rule all:
+  input:
+    for_every_file = expand("folder/{contrast}_file",
+                            contrast = config["contrasts"])
+```
+- This could be a problem to run only the PCA, but for the moment it is not because it has no wildcards. If I put wildcards in it later, I could do something like:
+
+```
+if config["only_pca"] == True:
+  rule all:
+    only the PCA files
+```
+
+- Everytime a comparation is performed, a new normalized counts file is created and saved. I cannot output some files with wildcards and others without, so I should create a new script that only saves the normalized counts (sorted).
+- I created an if statement inside the deseq2.R script that should create a heatmap even if there are not enough differentially expressed genes according to de_genes_n, but at least 25 DEG are present. I should test if it works.
 
 ### Implement the pathway analysis using Snakemake
 
