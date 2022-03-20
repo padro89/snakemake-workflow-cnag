@@ -26,22 +26,18 @@ rule all:
 
 # Running de DGE analysis with DESeq2
 
-def get_keys(dict):
-    return [*dict]
-
-print(get_keys(config["contrast"]))
-
 rule dge: 
     input:
-        contrast = print(get_keys(config["contrast"])),
         dds_design = "/home/joan/Test/Results/dds_design",
         rlogmat = "/home/joan/Test/Results/rlogMat.txt"
+    params: 
+        contrast = config["contrast"]
     output:
-        stats = f"/home/joan/Test/Results/{contrast}_stats.txt",
+        stats = f"/home/joan/Test/Results/stats.txt",
         norm_counts = f"/home/joan/Test/Results/norm_counts.txt",
-        deg_results = f"/home/joan/Test/Results/{contrast}_deg_results.txt",
-        topDEgenes_heatmap = f"/home/joan/Test/Results/{contrast}_top50DEgenes_heatmap.pdf",
-        heatmap_custom = f"/home/joan/Test/Results/{contrast}_topgenes_heatmap.tiff",
+        deg_results = f"/home/joan/Test/Results/deg_results.txt",
+        topDEgenes_heatmap = f"/home/joan/Test/Results/top50DEgenes_heatmap.pdf",
+        heatmap_custom = f"/home/joan/Test/Results/topgenes_heatmap.tiff",
     script:
         "scripts/deseq2.R"
 

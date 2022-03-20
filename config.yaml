@@ -25,7 +25,8 @@ path:
 factors: ["CODE","GENE","SEX","GROUP","GROUP_DUMMY"]
 continuous: ["CONTINUA1","CONTINUA2"]
 # Variable that contains the groups
-group: "GROUP_DUMMY"
+group: "GROUP"
+# group: "GROUP_DUMMY"
 # Control group
 control: "Unaffected"
 # Only PCA should be generated? (Boolean)
@@ -34,9 +35,10 @@ onlypca: False
 formula: "~SEX + group"
 # Each contrast as a list (variable, experimental group, control group)
 contrast:
-  mild_vs_unaffected: ["group","Mild","Unaffected"]
-  severe_vs_unaffected: ["group","Severe","Unaffected"]
-  mild_vs_severe: ["group","Mild","Severe"]
+  affected_vs_unaffected: ["group","Affected","Unaffected"]
+#  mild_vs_unaffected: ["group","Mild","Unaffected"]
+#  severe_vs_unaffected: ["group","Severe","Unaffected"]
+#  mild_vs_severe: ["group","Mild","Severe"]
 # Shrinkage method (either "normal" or "ashr". "apeglm" not implemented)
 shrinkage_method: "ashr"
 # Whether plots shall be generated

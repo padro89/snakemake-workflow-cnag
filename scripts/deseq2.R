@@ -5,7 +5,7 @@
 #rm(list=eliminats)
 #rm(eliminats)
 # Guardar-lo amb només l'objecte snakemake actualitzat
-save.image(file="workspace",)
+save.image(file="workspace")
 
 
 # Load required libraries
@@ -27,7 +27,7 @@ plot <- snakemake@config$plot
 shrinkage_method <-snakemake@config$shrinkage_method
 heatmap_atr <- snakemake@config$plot_atr$heatmap_ann
 de_genes_n <- snakemake@config$plot_atr$de_genes_n
-
+contrastos <- snakemake@config$contrast
 
 # No s'utilitzen
 # onlypca <- snakemake@config$onlypca
@@ -38,8 +38,7 @@ de_genes_n <- snakemake@config$plot_atr$de_genes_n
 # pca_atr <- snakemake@config$plot_atr$pca
 # directory <- snakemake@config$directory
 # control <- snakemake@config$control
-# formula <- snakemake@config$formula
-# contrastos <- snakemake@config$contrast
+
 
 ################## CONTRASTS FROM NOW ###############################################
 
@@ -48,8 +47,8 @@ rlogMat <- as.matrix(read.table(snakemake@input$rlogmat,
                                 header = T, row.names = 1))
 
 ## EXTRACT RESULTS ##
-resAll <- results(dds, cooksCutoff=TRUE, contrast=snakemake@input$contrast, parallel=TRUE)
-res2 <- lfcShrink(dds, contrast=snakemake@input$contrast , res=resAll, type=shrinkage_method)
+resAll <- results(dds, cooksCutoff=TRUE, contrast=snakemake@config$contrast[[1]], parallel=TRUE)
+res2 <- lfcShrink(dds, contrast=snakemake@input$contrast[[1]] , res=resAll, type=shrinkage_method)
 res <- subset(res2, abs(log2FoldChange) > log2(1.5))
 resOrdered<- res[order(res$padj),]
 resAllOrdered <- resAll[order(resAll$padj),]
