@@ -21,24 +21,11 @@ library("methods")
 ## Import parameters from the config file ##
 # S'utilitzen
 plot <- snakemake@config$plot
-
-
 shrinkage_method <-snakemake@config$shrinkage_method
 heatmap_atr <- snakemake@config$plot_atr$heatmap_ann
 de_genes_n <- snakemake@config$plot_atr$de_genes_n
 
-# No s'utilitzen
-# onlypca <- snakemake@config$onlypca
-# factors <- snakemake@config$factors
-# continuous <- snakemake@config$continuous
-# group <- snakemake@config$group
-# project <- snakemake@config$project
-# pca_atr <- snakemake@config$plot_atr$pca
-# directory <- snakemake@config$directory
-# control <- snakemake@config$control
-
-
-################## CONTRASTS FROM NOW ###############################################
+## Load the data
 
 load(snakemake@input$dds_design)
 rlogMat <- as.matrix(read.table(snakemake@input$rlogmat,
@@ -53,13 +40,6 @@ res <- subset(res2, abs(log2FoldChange) > log2(1.5))
 resOrdered<- res[order(res$padj),]
 resAllOrdered <- resAll[order(resAll$padj),]
   
-## EXTRACT COUNTS NORMALIZED ##
-c=counts(dds,normalized=TRUE)
-c_ordered=c[rownames(resAllOrdered),]
-colnames(c_ordered)=paste(dds[[contrast[1]]],",",colnames(c_ordered),sep="")
-counts_dds=(c_ordered[,order(colnames(c_ordered))])
-cc=round(counts_dds,digits=2)
-  
 ## EXTRACT DESCRIPTION AND SUMMARY ##
 description_stats<-mcols(res)$description
 summary_stats<-summary(res)
@@ -70,7 +50,6 @@ summary(res)
 sink()
   
 ## WRITE TABLE RESULTS ##
-write.table(cc, file = snakemake@output$norm_counts,quote=FALSE)
 pass_filter <- as.numeric(as.numeric(rownames(resAllOrdered) %in% rownames(resOrdered)) & (resAllOrdered$padj<0.05) )
 df_all <- as.data.frame(resAllOrdered)
 df_all["filter"]<- pass_filter

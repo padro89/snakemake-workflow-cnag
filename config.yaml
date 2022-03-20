@@ -18,14 +18,14 @@ path:
   trim: "/tmp"
   map: "/tmp"
   quant: "/tmp"
-  pca: "~/Test"
+  dge: "/home/joan/Test"
 
 # DESeq2 parameters
 # Lists of covariants to include (or NULL).
 factors: ["CODE","GENE","SEX","GROUP","GROUP_DUMMY"]
 continuous: ["CONTINUA1","CONTINUA2"]
 # Variable that contains the groups
-group: "GROUP_DUMMY"
+group: "GROUP"
 # group: "GROUP_DUMMY"
 # Control group
 control: "Unaffected"
@@ -33,20 +33,20 @@ control: "Unaffected"
 onlypca: False
 # String with the formula to use for the model
 formula: "~SEX + group"
-# Each contrast as a list (variable, experimental group, control group)
+# Each contrast
 contrasts:
-  #affected_vs_unaffected: 
-  #  - Affected
+  affected_vs_unaffected: 
+    - Affected
+    - Unaffected
+  #mild_vs_unaffected: 
+  #  - Mild
   #  - Unaffected
-  mild_vs_unaffected: 
-    - Mild
-    - Unaffected
-  severe_vs_unaffected:
-    - Severe
-    - Unaffected
-  mild_vs_severe:
-    - Mild
-    - Severe
+  #severe_vs_unaffected:
+  #  - Severe
+  #  - Unaffected
+  #mild_vs_severe:
+  #  - Mild
+  #  - Severe
 
 # Shrinkage method (either "normal" or "ashr". "apeglm" not implemented)
 shrinkage_method: "ashr"
@@ -55,9 +55,7 @@ plot: True
 # Specify plot atributes
 plot_atr:
   # Can I make this a list so it makes several PCA? It seems slow.
-  pca: "SEX"
+  pca: "group"
   heatmap_ann: "group"
   # Number of genes to show in the heatmap
   de_genes_n: 50
-# Dir where to create the results folder
-directory: "~/Test"

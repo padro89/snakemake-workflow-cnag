@@ -27,6 +27,13 @@ For every step of this project I'm going to use github for version control. Belo
 - `deseq2-modular`: A branch where I try to modularize the DESeq2 script.
 - `pathway_analysis`: A branch where I will try to create a pathway analysis.
 
+
+## Sources:
+
+I found this link where a similar analysis is run, and where I can get ideas:
+
+https://github.com/snakemake-workflows/rna-seq-star-deseq2
+
 ## What I'd like to do
 
 ### Install conda/mamba and create an environment to run the deseq2 script
