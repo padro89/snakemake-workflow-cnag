@@ -5,7 +5,7 @@
 #rm(list=eliminats)
 #rm(eliminats)
 # Guardar-lo amb només l'objecte snakemake actualitzat
-save.image(file="workspace")
+# save.image(file="workspace")
 
 # Load required libraries
 library("DESeq2")

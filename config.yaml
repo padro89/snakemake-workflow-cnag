@@ -23,9 +23,9 @@ path:
 # DESeq2 parameters
 # Lists of covariants to include (or NULL).
 factors: ["CODE","GENE","SEX","GROUP","GROUP_DUMMY"]
-continuous: ["CONTINUA1","CONTINUA2"]
+continuous: ["CONTINUA1"]
 # Variable that contains the groups
-group: "GROUP"
+group: "GROUP_DUMMY"
 # group: "GROUP_DUMMY"
 # Control group
 control: "Unaffected"
@@ -35,18 +35,18 @@ onlypca: False
 formula: "~SEX + group"
 # Each contrast
 contrasts:
-  affected_vs_unaffected: 
-    - Affected
+  #affected_vs_unaffected: 
+  #  - Affected
+  #  - Unaffected
+  mild_vs_unaffected: 
+    - Mild
     - Unaffected
-  #mild_vs_unaffected: 
-  #  - Mild
-  #  - Unaffected
-  #severe_vs_unaffected:
-  #  - Severe
-  #  - Unaffected
-  #mild_vs_severe:
-  #  - Mild
-  #  - Severe
+  severe_vs_unaffected:
+    - Severe
+    - Unaffected
+  mild_vs_severe:
+    - Mild
+    - Severe
 
 # Shrinkage method (either "normal" or "ashr". "apeglm" not implemented)
 shrinkage_method: "ashr"

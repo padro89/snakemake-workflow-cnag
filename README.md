@@ -113,7 +113,7 @@ rule B:
 - This script creates the dds file with a null formula to create the PCA from it, and the rest of scripts just import it (or update the formula). **A disadvantage of this is that I may have to load DESeq2 library many times**.
 - When running the PCA, if `pca_atr` is blank it should run groups by default.
 ```
-if(pca_atr==NULL){
+if(is.null(pca_atr) | pca_atr ! %in% colnames(dds@coldata)){
     pca_atr=="group"
 }
 ```

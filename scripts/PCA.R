@@ -5,7 +5,7 @@
 #rm(list=eliminats)
 #rm(eliminats)
 # Guardar-lo amb només l'objecte snakemake actualitzat
-#save.image(file="workspace")
+save.image(file="workspace")
 
 # Load required libraries
 library("DESeq2")
@@ -41,9 +41,9 @@ counts_raw <- read.table(snakemake@input[["counts"]],
                          check.names = F)
 info_raw <- read.table(snakemake@input[["info"]],
                        header = T, row.names = 1)
-coldata=subset(info_raw, row.names(info_raw) %in% colnames(counts_raw))
-countdata=counts_raw[,colnames(counts_raw) %in% rownames(coldata)]
-coldata=subset(coldata, row.names(coldata) %in% colnames(countdata))
+coldata <- subset(info_raw, row.names(info_raw) %in% colnames(counts_raw))
+countdata <- counts_raw[,colnames(counts_raw) %in% rownames(coldata)]
+coldata <- subset(coldata, row.names(coldata) %in% colnames(countdata))
 
 # Adapt info
 if (!is.null(factors)){
@@ -61,6 +61,18 @@ if (!is.null(factors)){
 #                                                labels=levels_tmp)
 #  }
 #}
+
+# La meva funció. Substitueix la variable per un factor. Potser n'hauria de crear
+# una de nova?
+#if (!is.null(continuous)){
+#  for(i in seq(length(continuous))){
+#    levels_temp <- paste0(continuous[i],1:3)
+#    coldata[,continuous[i]] <- cut(coldata[,continuous[i]],
+#                                  breaks = 3,
+#                                  labels=levels_temp)
+# }
+#}
+
 
 #if (!is.null(continuous)){
 #  for (i in seq(length(continuous))){

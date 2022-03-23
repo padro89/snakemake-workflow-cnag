@@ -68,7 +68,7 @@ rule design:
 rule PCA:
     input:
         counts = "../testdata/counts_3",
-        info = "../testdata/info_3_several.txt"
+        info = "../testdata/info_3_continua.txt"
     # These directories should make use of wildcards from the config file.
     output:
         pcas = config["path"]["dge"]+"/PCA.pdf",
