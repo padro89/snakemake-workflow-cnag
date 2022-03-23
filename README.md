@@ -120,6 +120,7 @@ if(is.null(pca_atr) | pca_atr ! %in% colnames(dds@coldata)){
 - I should be able to specify several variables for the PCA so it runs the PCA coloring for each variable FROM THE START.
 - I have to update the libraries needed in the PCA script so it takes less time to charge.
 - It works like this: First, a PCA is run, generating the graphs and the rlogMat.txt file, as well as other relevant files and the dds.
+- PCA .tiff graph is not created. There is a piece of code to create it I just have to uncomment and add to the output.
 
 ##### Updating the design formula.
 
@@ -176,6 +177,7 @@ if config["only_pca"] == True:
 
 - Everytime a comparation is performed, a new normalized counts file is created and saved. I cannot output some files with wildcards and others without, so I should create a new script that only saves the normalized counts (sorted).
 - I created an if statement inside the deseq2.R script that should create a heatmap even if there are not enough differentially expressed genes according to de_genes_n, but at least 25 DEG are present. I should test if it works.
+- I just realized that in the forumla the group variable must always be "group", as the name is changed in the first script. I should really try to simplify the script.
 
 ### Implement the pathway analysis using Snakemake
 
