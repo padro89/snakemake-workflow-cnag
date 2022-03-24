@@ -51,7 +51,18 @@ https://github.com/snakemake-workflows/rna-seq-star-deseq2
 - All the arguments were included in the config.ymal.
 - I implemented the R script using S4 objects in the script to make calls to Snakemake config.yaml and to import the data from the input in the rule.
 - Should I change anything about the output?
-- I MUST ADAPT THE PROCESSING OF THE CONTINUOUS VARIABLES, BUT I HAVE NONE. I SHOULD ASK FOR ONE EXAMPLE SO I GET WHAT THEY DO. They are probably adapted for graphics, so I could make a random continuous variable in the coldata and run the script to see where it fails and fix it.
+- Continuous variables are converted to factors. They must be specified in the config file in the `continuous` argument, along with the number of groups to do in the `n_continuous splits` package. I made a little loop in the PCA.R script that then converts them to factors:
+
+```
+if (!is.null(continuous)){
+  for(i in seq(length(continuous))){
+    levels_temp <- paste(continuous[i],seq(n_continuous_splits[i]),sep="_")
+    coldata[,continuous[i]] <- cut(coldata[,continuous[i]],
+                                  breaks = n_continuous_splits[i],
+                                  labels=levels_temp)
+ }
+}
+```
 
 ### Modularize the deseq2 script inside snakemake
 
@@ -121,6 +132,16 @@ if(is.null(pca_atr) | pca_atr ! %in% colnames(dds@coldata)){
 - I have to update the libraries needed in the PCA script so it takes less time to charge.
 - It works like this: First, a PCA is run, generating the graphs and the rlogMat.txt file, as well as other relevant files and the dds.
 - PCA .tiff graph is not created. There is a piece of code to create it I just have to uncomment and add to the output.
+- In the script, the interest variable name is changed to "group". This causes that if one specifies the plot attribute to be the name of the interest variable instead of "group", it cannot do the PCA. To solve this, I put a conditional statement when loading the snakemake object:
+  
+```
+if(snakemake@config$plot_atr$pca == snakemake@config$group |
+   is.null(snakemake@config$plot_atr$pca)){
+  pca_atr <- "group"
+}else{
+  pca_atr <- snakemake@config$plot_atr$pca
+}
+```
 
 ##### Updating the design formula.
 

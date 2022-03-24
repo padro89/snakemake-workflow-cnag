@@ -24,8 +24,9 @@ path:
 # Lists of covariants to include (or NULL).
 factors: ["CODE","GENE","SEX","GROUP","GROUP_DUMMY"]
 continuous: ["CONTINUA1"]
+n_continuous_splits: [3]
 # Variable that contains the groups
-group: "GROUP_DUMMY"
+group: "GROUP"
 # group: "GROUP_DUMMY"
 # Control group
 control: "Unaffected"
@@ -35,27 +36,33 @@ onlypca: False
 formula: "~SEX + group"
 # Each contrast
 contrasts:
-  #affected_vs_unaffected: 
-  #  - Affected
+  #continua1_vs_continua3:
+  #  - CONTINUA1_1
+  #  - CONTINUA1_3
+  #continua2_vs_continua3:
+  #  - CONTINUA1_2
+  #  - CONTINUA1_3
+  affected_vs_unaffected: 
+    - Affected
+    - Unaffected
+  #mild_vs_unaffected: 
+  #  - Mild
   #  - Unaffected
-  mild_vs_unaffected: 
-    - Mild
-    - Unaffected
-  severe_vs_unaffected:
-    - Severe
-    - Unaffected
-  mild_vs_severe:
-    - Mild
-    - Severe
+  #severe_vs_unaffected:
+  #  - Severe
+  #  - Unaffected
+  #mild_vs_severe:
+  #  - Mild
+  #  - Severe
 
 # Shrinkage method (either "normal" or "ashr". "apeglm" not implemented)
-shrinkage_method: "ashr"
+shrinkage_method: "normal"
 # Whether plots shall be generated
 plot: True
 # Specify plot atributes
 plot_atr:
   # Can I make this a list so it makes several PCA? It seems slow.
-  pca: "group"
+  pca: "GROUP"
   heatmap_ann: "group"
   # Number of genes to show in the heatmap
   de_genes_n: 50

@@ -26,7 +26,13 @@ project <- snakemake@config$project
 plot <- snakemake@config$plot
 factors <- snakemake@config$factors
 continuous <- snakemake@config$continuous
-pca_atr <- snakemake@config$plot_atr$pca
+n_continuous_splits <- snakemake@config$n_continuous_splits
+if(snakemake@config$plot_atr$pca == snakemake@config$group |
+   is.null(snakemake@config$plot_atr$pca)){
+  pca_atr <- "group"
+}else{
+  pca_atr <- snakemake@config$plot_atr$pca
+}
 directory <- snakemake@config$path$pca
 heatmap_atr <- snakemake@config$plot_atr$heatmap_ann
 
@@ -52,26 +58,16 @@ if (!is.null(factors)){
   }
 }
 
-## Funció prèvia. Probablement s'hagi d'adaptar l'altra.
-#if (!is.null(continuous)){
-#  for (i in seq(length(names(continuous)))){
-#    levels_tmp <- paste(names(continuous)[i],seq(as.numeric(continuous[i][2])), sep="")
-#    coldata[,continuous[i][1]] = cut(coldata[,continuous[i][1]],
-#                                                as.numeric(continuous[i][2]),
-#                                                labels=levels_tmp)
-#  }
-#}
-
 # La meva funció. Substitueix la variable per un factor. Potser n'hauria de crear
 # una de nova?
-#if (!is.null(continuous)){
-#  for(i in seq(length(continuous))){
-#    levels_temp <- paste0(continuous[i],1:3)
-#    coldata[,continuous[i]] <- cut(coldata[,continuous[i]],
-#                                  breaks = 3,
-#                                  labels=levels_temp)
-# }
-#}
+if (!is.null(continuous)){
+  for(i in seq(length(continuous))){
+    levels_temp <- paste(continuous[i],seq(n_continuous_splits[i]),sep="_")
+    coldata[,continuous[i]] <- cut(coldata[,continuous[i]],
+                                  breaks = n_continuous_splits[i],
+                                  labels=levels_temp)
+ }
+}
 
 
 #if (!is.null(continuous)){
