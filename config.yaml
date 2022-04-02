@@ -26,7 +26,7 @@ factors: ["CODE","GENE","SEX","GROUP","GROUP_DUMMY"]
 continuous: ["CONTINUA1"]
 n_continuous_splits: [3]
 # Variable that contains the groups
-group: "GROUP"
+group: "GROUP_DUMMY"
 # group: "GROUP_DUMMY"
 # Control group
 control: "Unaffected"
@@ -42,18 +42,18 @@ contrasts:
   #continua2_vs_continua3:
   #  - CONTINUA1_2
   #  - CONTINUA1_3
-  affected_vs_unaffected: 
-    - Affected
+  #affected_vs_unaffected: 
+  #  - Affected
+  #  - Unaffected
+  mild_vs_unaffected: 
+    - Mild
     - Unaffected
-  #mild_vs_unaffected: 
-  #  - Mild
-  #  - Unaffected
-  #severe_vs_unaffected:
-  #  - Severe
-  #  - Unaffected
-  #mild_vs_severe:
-  #  - Mild
-  #  - Severe
+  severe_vs_unaffected:
+    - Severe
+    - Unaffected
+  mild_vs_severe:
+    - Mild
+    - Severe
 
 # Shrinkage method (either "normal" or "ashr". "apeglm" not implemented)
 shrinkage_method: "normal"

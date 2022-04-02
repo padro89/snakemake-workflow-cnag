@@ -33,13 +33,7 @@ if(snakemake@config$plot_atr$pca == snakemake@config$group |
 }else{
   pca_atr <- snakemake@config$plot_atr$pca
 }
-directory <- snakemake@config$path$pca
 heatmap_atr <- snakemake@config$plot_atr$heatmap_ann
-
-# No s'utilitzen
-# contrastos <- snakemake@config$contrast
-# shrinkage_method <-snakemake@config$shrinkage_method
-# formula <- snakemake@config$formula
 
 ## Import counts matrix and sample info ##
 counts_raw <- read.table(snakemake@input[["counts"]],
@@ -58,8 +52,8 @@ if (!is.null(factors)){
   }
 }
 
-# La meva funció. Substitueix la variable per un factor. Potser n'hauria de crear
-# una de nova?
+# La meva funció. Substitueix la variable per un factor. Potser hauria de crear
+# una variable nova?
 if (!is.null(continuous)){
   for(i in seq(length(continuous))){
     levels_temp <- paste(continuous[i],seq(n_continuous_splits[i]),sep="_")
@@ -68,14 +62,6 @@ if (!is.null(continuous)){
                                   labels=levels_temp)
  }
 }
-
-
-#if (!is.null(continuous)){
-#  for (i in seq(length(continuous))){
-#    coldata[,continuous[i]] <- as.numeric(coldata[,continuous[i]])
-#  }
-#  
-#}
 
 names(coldata)[which(names(coldata)==group)] = "group"
 
@@ -86,7 +72,7 @@ coldata$group <- relevel(factor(coldata$group), ref=control)
 #Sort names countdata as rownames in coldata
 countdata <- countdata[rownames(coldata)]
 
-## BATCH EFFECT ##
+## Independent filtering ##
 dds <- DESeqDataSetFromMatrix(countData = countdata,
                               colData = coldata,
                               design = formula("~1"))
@@ -111,8 +97,8 @@ dds <- dds[keep,]
 rld <- rlog(dds)
 #vsd <-varianceStabilizingTransformation(dds)
 rlogMat<-assay(rld)
-write.table(rlogMat, file = snakemake@output$rlog # paste(file.path(directory,"Results/"),project,"_rlogMat.txt",sep="")
-            , quote = F)
+write.table(rlogMat, file = snakemake@output$rlog, # paste(file.path(directory,"Results/"),project,"_rlogMat.txt",sep="")
+            quote = F)
 #vstMat<-assay(vsd)
 
 #heatmap samples"
