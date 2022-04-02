@@ -207,6 +207,14 @@ if config["only_pca"] == True:
 - ORA: 
   - For the DGE list, I take the genes that are differentialy expressed (they may have a column "Filter" if the analysis is run with DESeq2).
   - I then get the ENSEMBL ID. It may have a last number after a point I should remove, this happens with *Mus musculus* and *Homo sapiens* samples. I can use awk for this.
+  - To do this, I use a new rule that, using awk, selects the genes with `Filter==1` and then removes everything before the comma with `cut -d "," -f 1` (-d specifies the delimiter, -f the column) and everything before the point (in case its from mouse or human).
+  - If I use a genelist where no filter column exists, I can maybe create the same awk command using the last column (adj p. value):
+
+```
+awk '{{if($NF<0.05) print $1}}'
+```
+Note: I MUST remember that when using awk inside snakemake, I must use double brackets{{}}.
+  - Maybe it would be more flexible to just transform the results inside an R script, where I can use conditional statements more easily.
   - If instead of ENSEMBL, GENEID is used, the split should be done always before the comma.
   - With the ENSEMBL ID I can use a GMT file that contains all the pathways for the organism.
   - There is no need to select a Universe, g:Profiler uses one automatically.

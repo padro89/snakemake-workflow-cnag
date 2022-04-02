@@ -9,11 +9,11 @@ save.image(file="workspace")
 
 # Load required libraries
 library("DESeq2")
-library("BiocParallel")
+#library("BiocParallel")
 library("pheatmap")
 library("RColorBrewer")
 library("ggplot2")
-library("genefilter")
+#library("genefilter")
 library("gridExtra")
 require("grid")
 library("methods")

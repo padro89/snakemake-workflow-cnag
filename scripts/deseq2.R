@@ -11,12 +11,12 @@
 library("DESeq2")
 library("BiocParallel")
 library("pheatmap")
-library("RColorBrewer")
 library("ggplot2")
-library("genefilter")
-library("gridExtra")
-require("grid")
-library("methods")
+#library("RColorBrewer")
+#library("genefilter")
+#library("gridExtra")
+#require("grid")
+#library("methods")
 
 ## Import parameters from the config file ##
 # S'utilitzen

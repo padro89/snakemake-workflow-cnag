@@ -1,4 +1,4 @@
-name: cnag
+name: cnag2
 channels:
   - conda-forge
   - bioconda
@@ -6,13 +6,16 @@ channels:
 dependencies:
   - snakemake
   - r-base
-  - r-pheatmaps
+  - r-pheatmap
   - r-rcolorbrewer
   - r-ggplot2
   - r-gridextra
   - r-r.methodss3
   - r-ashr
+  - r-gprofiler2
   - bioconductor-biobase
   - bioconductor-genefilter
   - bioconductor-deseq2
   - bioconductor-biocparallel
+  - bioconductor-fgsea
+  # En falten alguns (repr, data.table)

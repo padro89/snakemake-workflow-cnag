@@ -35,7 +35,35 @@ rule all:
         topDEgenes_heatmap = expand(config["path"]["dge"]+"/{contrast}/{contrast}_top50DEgenes_heatmap.pdf",
             contrast=config["contrasts"]),
         heatmap_custom = expand(config["path"]["dge"]+"/{contrast}/{contrast}_topgenes_heatmap.tiff",
+            contrast=config["contrasts"]),
+        deg_list = expand(config["path"]["dge"]+"/{contrast}/{contrast}_deg_list.txt",
+            contrast=config["contrasts"]),
+        ora = expand(config["path"]["dge"]+"/{contrast}/{contrast}_ora.table",
             contrast=config["contrasts"])
+
+# Running the GSEA
+
+
+
+# Running the ORA
+
+rule ora:
+    input:
+        deg_list = config["path"]["dge"]+"/{contrast}/{contrast}_deg_list.txt"
+    output:
+        ora = config["path"]["dge"]+"/{contrast}/{contrast}_ora.table"
+    script:
+        "scripts/gprofiler.R"
+
+# Selecting the DEGs.
+rule select_deg:
+    input:
+        deg_results = config["path"]["dge"]+"/{contrast}/{contrast}_deg_results.txt"
+    output:
+        deg_list = temp(config["path"]["dge"]+"/{contrast}/{contrast}_deg_list.txt"),
+    shell:
+        "cat {input} | awk '{{if($NF < 0.05) print $1}}' | "
+        "cut -d ',' -f 1 | cut -d '.' -f 1 > {output}"
 
 # Running de DGE analysis with DESeq2
 
@@ -65,6 +93,7 @@ rule design:
         "scripts/deseq2_design.R"
 
 # Running the PCA 
+
 rule PCA:
     input:
         counts = "../testdata/counts_3",

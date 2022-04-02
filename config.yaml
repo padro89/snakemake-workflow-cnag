@@ -31,7 +31,7 @@ group: "GROUP_DUMMY"
 # Control group
 control: "Unaffected"
 # Only PCA should be generated? (Boolean)
-onlypca: False
+onlypca: false
 # String with the formula to use for the model
 formula: "~SEX + group"
 # Each contrast
@@ -66,3 +66,21 @@ plot_atr:
   heatmap_ann: "group"
   # Number of genes to show in the heatmap
   de_genes_n: 50
+
+## Pathway analysis params
+## ORA params
+# Species
+species: "hsapiens"
+# Base URL
+baseurl: "https://biit.cs.ut.ee/gprofiler"
+# Translate gene ID to orthologous target species
+orth_species: false
+## FGSEA params
+# GMT file
+gmt: 
+# split character
+split:
+# ID column number
+colid: 1
+# Rank column 
+rank: 
