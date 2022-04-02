@@ -221,6 +221,7 @@ Note: I MUST remember that when using awk inside snakemake, I must use double br
 - GSEA:
   - I need to indicate the column that contains the statistic in the DGE list in order to rank the genes. 
   - Maybe it would be interesting to create some graphs, like in the GSEA, like those in the REVIGO.
+  - IF THERE ARE NO DEGs, I SHOULD CREATE AN EMPTY FILE TO AVOID SNAKEMAKE FAILURE LACKING OUTPUT.
 
 ### Integrate Marc's alignment workflow
 
