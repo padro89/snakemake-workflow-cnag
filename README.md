@@ -128,7 +128,7 @@ if(is.null(pca_atr) | pca_atr ! %in% colnames(dds@coldata)){
     pca_atr=="group"
 }
 ```
-- I should be able to specify several variables for the PCA so it runs the PCA coloring for each variable FROM THE START.
+- I should be able to specify several variables for the PCA so it runs the PCA coloring for each variable FROM THE START. Currently, if several variables are specified, it creates subgroups.
 - I have to update the libraries needed in the PCA script so it takes less time to charge.
 - It works like this: First, a PCA is run, generating the graphs and the rlogMat.txt file, as well as other relevant files and the dds.
 - PCA .tiff graph is not created. There is a piece of code to create it I just have to uncomment and add to the output.

@@ -61,8 +61,8 @@ shrinkage_method: "normal"
 plot: True
 # Specify plot atributes
 plot_atr:
-  # Can I make this a list so it makes several PCA? It seems slow.
-  pca: "GROUP"
+  # Can I make this a list so it makes several PCA?
+  pca: "group"
   heatmap_ann: "group"
   # Number of genes to show in the heatmap
   de_genes_n: 50
