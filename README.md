@@ -208,10 +208,10 @@ if config["only_pca"] == True:
   - For the DGE list, I take the genes that are differentialy expressed (they may have a column "Filter" if the analysis is run with DESeq2).
   - I then get the ENSEMBL ID. It may have a last number after a point I should remove, this happens with *Mus musculus* and *Homo sapiens* samples. I can use awk for this.
   - To do this, I use a new rule that, using awk, selects the genes with `Filter==1` and then removes everything before the comma with `cut -d "," -f 1` (-d specifies the delimiter, -f the column) and everything before the point (in case its from mouse or human).
-  - If I use a genelist where no filter column exists, I can maybe create the same awk command using the last column (adj p. value):
+  - If I use a genelist where no filter column exists, I can maybe create the same awk command using the last column (adj p. value) and the logFC:
 
 ```
-awk '{{if($NF<0.05) print $1}}'
+awk '{{if($NF<0.05 & $<columna logFC> > 2) print $1}}'
 ```
 Note: I MUST remember that when using awk inside snakemake, I must use double brackets{{}}.
   - Maybe it would be more flexible to just transform the results inside an R script, where I can use conditional statements more easily.
@@ -226,10 +226,30 @@ Note: I MUST remember that when using awk inside snakemake, I must use double br
 ### Integrate Marc's alignment workflow
 
 - He uses a FLI file with the samples. I'm not sure if I can include it in the config file, but it would probably be more useful as an input file.
+- He told me it does not work. I should revise it. I can connect to the CNAG cluster and try it in interactive mode. I created aliases. Once in the cluster I can enter interactive mode with `mnsh -C 8 -x`.
 
 ### Integrate everything toghether
 - I should probably make subworkflows for different options in the config.
-- Should I use the config for everything, or should I use params?
+- I can get the output for rule all with different methods. One is to define a function that gets it. I can use something like this:
+
+```
+def get_final_output(wildcards):
+    deseq2_output = expand(rules.<rule>.output, contrast = config["contrasts"]
+    pca_output = rules.PCA.output
+
+# Then try something like
+    final_output = []
+    if config["some_option"] == value:
+        final_output.append(deseq2_output)
+
+    return final_output
+
+# And call the function in the final rule.
+rule all:
+    input:
+        get_final_output
+```
+**Note:** This does not work. I have changed it in the code so it works. 
 - I can use Python `if()` inside any rule to change the workflow according to specified parameters.
 
 ### Add conda dependencies to the each step in the Snakemake workflow
@@ -263,6 +283,7 @@ lfc <- lfcShrink(dds, coef="condition_3_vs_2", type="apeglm")
 - Add volcano plots.
 - Modify the PCA using my own function.
 - Add the option to choose any variables for coloring (including continuous variables, that should be factorized for this).
+- I can include a conditional statement in the R scripts depending on the config file deciding wether to make tiff output. This would give an error whenever the output is missing. To avoid this, I can make a python function to get the snakemake output including the same conditional statements.
 
 ### Implement the option to use limma instead of DESeq2
 

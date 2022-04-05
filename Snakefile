@@ -1,8 +1,33 @@
 def get_contrast(wildcards):
     return config["contrasts"][wildcards.contrast]
 
-def get_final_output(wildcards):
-    pass
+def get_pca_output(wildcards):
+    return rules.PCA.output
+
+def get_deseq_output(wildcards):
+    # mapping_output = []
+    # dge_limma_output = [expand(config["path"]["dge"]+"/{contrast}/{contrast}_stats.txt",
+    #                         contrast=config["contrasts"]),
+    #                     config["path"]["dge"]+"/norm_counts.txt",
+    #                     expand(config["path"]["dge"]+"/{contrast}/{contrast}_deg_results.txt",
+    #                         contrast=config["contrasts"]),
+    #                     expand(config["path"]["dge"]+"/{contrast}/{contrast}_top50DEgenes_heatmap.pdf",
+    #                         contrast=config["contrasts"]),
+    #                     expand(config["path"]["dge"]+"/{contrast}/{contrast}_topgenes_heatmap.tiff",
+    #                         contrast=config["contrasts"]),
+    #                     expand(config["path"]["dge"]+"/{contrast}/{contrast}_deg_list.txt",
+    #                         contrast=config["contrasts"])]
+    # ora_output = [expand(config["path"]["dge"]+"/{contrast}/{contrast}_ora.table",
+    #                 contrast=config["contrasts"])]
+    # final_output.append(mapping_output)
+    # final_output.append(dge_limma_output)
+    # final_output = rules.PCA.output
+    if config["onlypca"] == False:
+        deseq_output = expand(rules.ora.output, contrast = config["contrasts"])
+    else:
+        deseq_output = []
+    #final_output.append(rules.select_deg.output)
+    return deseq_output
 
 # Mapping workflow
 """# Including rules
@@ -27,19 +52,10 @@ configfile: "config.yaml"
 
 rule all:
     input:
-        stats = expand(config["path"]["dge"]+"/{contrast}/{contrast}_stats.txt",
-            contrast=config["contrasts"]),
-        norm_counts = config["path"]["dge"]+"/norm_counts.txt",
-        deg_results = expand(config["path"]["dge"]+"/{contrast}/{contrast}_deg_results.txt",
-            contrast=config["contrasts"]),
-        topDEgenes_heatmap = expand(config["path"]["dge"]+"/{contrast}/{contrast}_top50DEgenes_heatmap.pdf",
-            contrast=config["contrasts"]),
-        heatmap_custom = expand(config["path"]["dge"]+"/{contrast}/{contrast}_topgenes_heatmap.tiff",
-            contrast=config["contrasts"]),
-        deg_list = expand(config["path"]["dge"]+"/{contrast}/{contrast}_deg_list.txt",
-            contrast=config["contrasts"]),
-        ora = expand(config["path"]["dge"]+"/{contrast}/{contrast}_ora.table",
-            contrast=config["contrasts"])
+        get_pca_output,
+        get_deseq_output
+        #expand(config["path"]["dge"]+"/{contrast}/{contrast}_ora.table",
+        #   contrast=config["contrasts"])
 
 # Running the GSEA
 

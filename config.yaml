@@ -31,7 +31,7 @@ group: "GROUP_DUMMY"
 # Control group
 control: "Unaffected"
 # Only PCA should be generated? (Boolean)
-onlypca: false
+onlypca: False
 # String with the formula to use for the model
 formula: "~SEX + group"
 # Each contrast
@@ -73,11 +73,11 @@ plot_atr:
 species: "hsapiens"
 # Base URL
 baseurl: "https://biit.cs.ut.ee/gprofiler"
-# Translate gene ID to orthologous target species
+# Translate gene ID to orthologous target species. False or the species.
 orth_species: false
 ## FGSEA params
 # GMT file
-gmt: 
+gmt: ""
 # split character
 split:
 # ID column number

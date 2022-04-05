@@ -43,29 +43,6 @@ colsExport <- c(
   "intersection"
 )
 
-# This is not necessary, as snakemake gives one file at a time:
-#files=Sys.glob(opt$input)
-#for (i in files){
-#  if (as.numeric(unlist(strsplit(system(paste("wc -l ", i, sep=""), intern=TRUE)," "))[1] )>0){
-#    name_f=basename(i)
-#   cat(paste(name_f,"\n",sep=""))
-#  gene=read.table(i, header = F)$V1
-# 
-#  if (opt$orth_species != FALSE){
-#    gene = gorth(gene, source_organism=opt$species, target_organism=opt$orth_species)$ortholog_ensg
-#    opt$species <- opt$orth_species
-#  }
-#    
-#    result=gost(
-#      gene,
-#      organism = opt$species,
-#      evcodes = TRUE
-#    )
-#    #result$result$parents <- lapply(result$result$parents, function(x) paste(x, collapse=","))
-#    write.table(result$result[,colsExport],paste(opt$outdir,"/",name_f,'.table',sep=""), quote= FALSE, sep="\t", row.names = F)
-#  }
-#}
-
 # Get DEGs
 genes <- read.table(snakemake@input$deg_list, header = F)[,1]
 
@@ -83,6 +60,10 @@ if(length(genes > 0)){
 
   write.table(result$result[,colsExport],snakemake@output$ora,
               quote= FALSE, sep="\t", row.names = F)
+} else {
+  write.table("Not enough differentialy expressed genes to perform the analysis",
+              snakemake@output$ora,
+              quote= FALSE, row.names = F)
 }
 # Session info. Should I use it somewhere else?
 #sink(format(Sys.time(), "sessionInfo-GetGO_gProfiler2_%Y_%b_%d_%H%M%S.txt"))
