@@ -1,43 +1,21 @@
-#! /usr/bin/env Rscript
+save.image(file="workspace")
 
-# author: Marc Dabad <marc.dabad@cnag.crg.cat>
-# author: Beatriz Martin-Mur <beatriz.martin@cnag.crg.eu>
 
-### Parse args
 
-args = commandArgs(trailingOnly=TRUE)
-usage <- function(){
-  cat("
-The R Script
 
-Arguments:
---input=file    - Pattern file name [mandatory]
---outdir=path   - Path to output_dir [default: ./]
---gmt=file      - Path to gmt file [mandatory]
---split=char    - String to split name (first column) [default: \"\\.\"]
---colid=int     - From first column, where is the ID to be used (gene_name, gene_id...) (default: 1)
---rank=int      - Column to rank [mandatory]
---help          - print this text
+
+# Arguments:
+# --input=file    - Pattern file name [mandatory]
+# --outdir=path   - Path to output_dir [default: ./]
+# --gmt=file      - Path to gmt file [mandatory]
+# --split=char    - String to split name (first column) [default:
+# --colid=int     - From first column, where is the ID to be used (gene_name, gene_id...) (default: 1)
+# --rank=int      - Column to rank [mandatory]
    
-Example:
-./fgsea.R --input=pattern \\
-          --ouputdir=\"path/to/output\" \\
-          --gmt=\"path/to/file.gmt\" \\
-          --split=\".\" \\
-          --rank=4\n\n")
-  
-  q(save="no")
-}
-
 gmt <- snakemake@config$gmt
 split <- snakemake@config$split
 colid <- snakemake@config$colid
 rank <- snakemake@config$rank
-
-## Default setting when no arguments passed
-if(length(args) < 1 || args == "--help") {
-  usage()
-}
 
 
 ## Parse arguments (we expect the form --arg=value)
@@ -127,6 +105,6 @@ for (i in files){
     run_fgsea(i, opt$split, as.integer(opt$rank), allLevels)
 }
 
-sink(format(Sys.time(), "sessionInfo-fgsea_%Y_%b_%d_%H%M%S.txt"))
-sessionInfo()
-sink()
+#sink(format(Sys.time(), "sessionInfo-fgsea_%Y_%b_%d_%H%M%S.txt"))
+#sessionInfo()
+#sink()

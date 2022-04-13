@@ -53,7 +53,8 @@ configfile: "config.yaml"
 rule all:
     input:
         get_pca_output,
-        get_deseq_output
+        get_deseq_output,
+        #get_limma_output
         #expand(config["path"]["dge"]+"/{contrast}/{contrast}_ora.table",
         #   contrast=config["contrasts"])
 
@@ -78,8 +79,8 @@ rule select_deg:
     output:
         deg_list = temp(config["path"]["dge"]+"/{contrast}/{contrast}_deg_list.txt"),
     shell:
-        "cat {input} | awk '{{if($NF < 0.05) print $1}}' | "
-        "cut -d ',' -f 1 | cut -d '.' -f 1 > {output}"
+        "cat {input} | awk '{{if($NF < 0.05 && sqrt($4^2) > log(1.5)/log(2))"
+        " print $1}}' | cut -d ',' -f 1 | cut -d '.' -f 1 > {output}"
 
 # Running de DGE analysis with DESeq2
 

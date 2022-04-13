@@ -208,12 +208,18 @@ if config["only_pca"] == True:
   - For the DGE list, I take the genes that are differentialy expressed (they may have a column "Filter" if the analysis is run with DESeq2).
   - I then get the ENSEMBL ID. It may have a last number after a point I should remove, this happens with *Mus musculus* and *Homo sapiens* samples. I can use awk for this.
   - To do this, I use a new rule that, using awk, selects the genes with `Filter==1` and then removes everything before the comma with `cut -d "," -f 1` (-d specifies the delimiter, -f the column) and everything before the point (in case its from mouse or human).
-  - If I use a genelist where no filter column exists, I can maybe create the same awk command using the last column (adj p. value) and the logFC:
+  - If I use a genelist where no filter column exists, I can maybe create the same awk command using the last column (adj p. value) and the shrunken logFC. To do this, I use an if statement comparing the adjusted p-value and an absolute shrunken-logFC (which I get with the square root of the square of the column) greater than log2(1.5). awk only provides natural logarithm, but I have to consider that:
 
+log2(x) = ln(x)/ln(2) (base change rule of logarithms).
+
+The resulting command is: 
 ```
-awk '{{if($NF<0.05 & $<columna logFC> > 2) print $1}}'
+awk '{{if($NF<0.05 & sqrt($4^2) > log(1.5)/log(2)) print $1}}'
 ```
+I have tested this result many times, and it gives the same as the filter column.
+
 Note: I MUST remember that when using awk inside snakemake, I must use double brackets{{}}.
+
   - Maybe it would be more flexible to just transform the results inside an R script, where I can use conditional statements more easily.
   - If instead of ENSEMBL, GENEID is used, the split should be done always before the comma.
   - With the ENSEMBL ID I can use a GMT file that contains all the pathways for the organism.

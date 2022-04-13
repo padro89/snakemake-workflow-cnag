@@ -31,7 +31,7 @@ group: "GROUP_DUMMY"
 # Control group
 control: "Unaffected"
 # Only PCA should be generated? (Boolean)
-onlypca: False
+onlypca: false
 # String with the formula to use for the model
 formula: "~SEX + group"
 # Each contrast
@@ -56,7 +56,7 @@ contrasts:
     - Severe
 
 # Shrinkage method (either "normal" or "ashr". "apeglm" not implemented)
-shrinkage_method: "normal"
+shrinkage_method: "ashr"
 # Whether plots shall be generated
 plot: True
 # Specify plot atributes
@@ -77,7 +77,7 @@ baseurl: "https://biit.cs.ut.ee/gprofiler"
 orth_species: false
 ## FGSEA params
 # GMT file
-gmt: ""
+gmt: "home/joan/OneDrive/UOC/TFM/testdada/Ensembl2Reactome.HSA.gmt"
 # split character
 split:
 # ID column number
