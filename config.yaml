@@ -43,8 +43,8 @@ contrasts:
   #  - CONTINUA1_2
   #  - CONTINUA1_3
   #affected_vs_unaffected: 
-  #  - Affected
-  #  - Unaffected
+  # - Affected
+  # - Unaffected
   mild_vs_unaffected: 
     - Mild
     - Unaffected
@@ -68,19 +68,17 @@ plot_atr:
   de_genes_n: 50
 
 ## Pathway analysis params
-## ORA params
 # Species
 species: "hsapiens"
+## ORA params
 # Base URL
 baseurl: "https://biit.cs.ut.ee/gprofiler"
 # Translate gene ID to orthologous target species. False or the species.
 orth_species: false
 ## FGSEA params
 # GMT file
-gmt: "home/joan/OneDrive/UOC/TFM/testdada/Ensembl2Reactome.HSA.gmt"
-# split character
-split:
-# ID column number
-colid: 1
-# Rank column 
-rank: 
+gmt: "/home/joan/OneDrive/UOC/TFM/testdata/Symbol2Reactome_curated.gmt"
+# Gene identifier to use in the GSEA ("ENSEMBL","SYMBOL")
+id_type: "SYMBOL"
+# Rank column number or name ("stat","shrunkenlfc")
+rank: "stat"

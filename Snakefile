@@ -5,23 +5,6 @@ def get_pca_output(wildcards):
     return rules.PCA.output
 
 def get_deseq_output(wildcards):
-    # mapping_output = []
-    # dge_limma_output = [expand(config["path"]["dge"]+"/{contrast}/{contrast}_stats.txt",
-    #                         contrast=config["contrasts"]),
-    #                     config["path"]["dge"]+"/norm_counts.txt",
-    #                     expand(config["path"]["dge"]+"/{contrast}/{contrast}_deg_results.txt",
-    #                         contrast=config["contrasts"]),
-    #                     expand(config["path"]["dge"]+"/{contrast}/{contrast}_top50DEgenes_heatmap.pdf",
-    #                         contrast=config["contrasts"]),
-    #                     expand(config["path"]["dge"]+"/{contrast}/{contrast}_topgenes_heatmap.tiff",
-    #                         contrast=config["contrasts"]),
-    #                     expand(config["path"]["dge"]+"/{contrast}/{contrast}_deg_list.txt",
-    #                         contrast=config["contrasts"])]
-    # ora_output = [expand(config["path"]["dge"]+"/{contrast}/{contrast}_ora.table",
-    #                 contrast=config["contrasts"])]
-    # final_output.append(mapping_output)
-    # final_output.append(dge_limma_output)
-    # final_output = rules.PCA.output
     if config["onlypca"] == False:
         deseq_output = expand(rules.ora.output, contrast = config["contrasts"])
     else:
@@ -29,7 +12,14 @@ def get_deseq_output(wildcards):
     #final_output.append(rules.select_deg.output)
     return deseq_output
 
-# Mapping workflow
+def get_fgsea_output(wildcards):
+    if config["onlypca"] == False:
+        fgsea_output = expand(rules.fgsea.output, contrast = config["contrasts"])
+    else:
+        fgsea_output = []
+    return fgsea_output
+
+# Mapping workflows
 """# Including rules
 include: "rules/common.smk"
 include: "rules/trim.smk"
@@ -54,12 +44,20 @@ rule all:
     input:
         get_pca_output,
         get_deseq_output,
+        get_fgsea_output,
         #get_limma_output
-        #expand(config["path"]["dge"]+"/{contrast}/{contrast}_ora.table",
-        #   contrast=config["contrasts"])
 
 # Running the GSEA
 
+rule fgsea:
+    input:
+        deg_results = config["path"]["dge"]+"/{contrast}/{contrast}_deg_results.txt",
+        gmt = config["gmt"],
+    output:
+        fgsea_pdf = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.pdf",
+        fgsea = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.tsv"
+    script:
+        "scripts/fgsea.R"
 
 
 # Running the ORA

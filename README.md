@@ -202,13 +202,13 @@ if config["only_pca"] == True:
 
 ### Implement the pathway analysis using Snakemake
 
+#### ORA
+
 - The pathway analysis is performed with g:Profiler.
-- Both ORA and GSEA are carried out, I have a script for each of them.
-- ORA: 
-  - For the DGE list, I take the genes that are differentialy expressed (they may have a column "Filter" if the analysis is run with DESeq2).
-  - I then get the ENSEMBL ID. It may have a last number after a point I should remove, this happens with *Mus musculus* and *Homo sapiens* samples. I can use awk for this.
-  - To do this, I use a new rule that, using awk, selects the genes with `Filter==1` and then removes everything before the comma with `cut -d "," -f 1` (-d specifies the delimiter, -f the column) and everything before the point (in case its from mouse or human).
-  - If I use a genelist where no filter column exists, I can maybe create the same awk command using the last column (adj p. value) and the shrunken logFC. To do this, I use an if statement comparing the adjusted p-value and an absolute shrunken-logFC (which I get with the square root of the square of the column) greater than log2(1.5). awk only provides natural logarithm, but I have to consider that:
+- For the DGE list, I take the genes that are differentialy expressed (they may have a column "Filter" if the analysis is run with DESeq2).
+- I then get the ENSEMBL ID. It may have a last number after a point I should remove, this happens with *Mus musculus* and *Homo sapiens* samples. I can use awk for this.
+- To do this, I use a new rule that, using awk, selects the genes with `Filter==1` and then removes everything before the comma with `cut -d "," -f 1` (-d specifies the delimiter, -f the column) and everything before the point (in case its from mouse or human).
+- To avoid using the filter column (which is not present always), I can create the same awk command using the last column (adj p. value) and the shrunken logFC. To do this, I use an if statement comparing the adjusted p-value and an absolute shrunken-logFC (which I get with the square root of the square of the column) greater than log2(1.5). awk only provides natural logarithm, but I have to consider that:
 
 log2(x) = ln(x)/ln(2) (base change rule of logarithms).
 
@@ -220,14 +220,33 @@ I have tested this result many times, and it gives the same as the filter column
 
 Note: I MUST remember that when using awk inside snakemake, I must use double brackets{{}}.
 
-  - Maybe it would be more flexible to just transform the results inside an R script, where I can use conditional statements more easily.
-  - If instead of ENSEMBL, GENEID is used, the split should be done always before the comma.
-  - With the ENSEMBL ID I can use a GMT file that contains all the pathways for the organism.
-  - There is no need to select a Universe, g:Profiler uses one automatically.
-- GSEA:
-  - I need to indicate the column that contains the statistic in the DGE list in order to rank the genes. 
-  - Maybe it would be interesting to create some graphs, like in the GSEA, like those in the REVIGO.
-  - IF THERE ARE NO DEGs, I SHOULD CREATE AN EMPTY FILE TO AVOID SNAKEMAKE FAILURE LACKING OUTPUT.
+- Maybe it would be more flexible to just transform the results inside an R script, where I can use conditional statements more easily.
+- There is no need to select a Universe, g:Profiler uses one automatically.
+
+#### GSEAs
+- I need to indicate the column that contains the statistic in the DGE list in order to rank the genes. They are using the shrunkenlFC. Should I use the statistic?
+- If instead of ENSEMBL, GENEID is used, the split should be done always before the comma. If human or mouse is used with ENSEMBL ID, the split should be before the point. I solved this with this statement inside the fgsea script:
+
+```
+# Getting the split character:
+# Defaults to comma
+split <- "\\,"
+# If ENSEMBLEID is used
+if(colid == 1){
+  # If human or mouse
+  if(snakemake@config$species == "hsapiens" |
+     snakemake@config$species == "mmusculus"){
+    # Sets it to point
+    split <-"\\."
+  }
+}
+```
+- I can make changes to avoid the COLID variable, which states which of the names should be used (ENSEMBL, GENEID), to something more intuitive in the config file like identifier.
+- With the ENSEMBL ID I can use a GMT file that contains all the pathways for the organism.
+- Maybe it would be interesting to create some graphs, like in the GSEA, like those in the REVIGO.
+
+
+Note: IF THERE ARE NO DEGs, I SHOULD CREATE AN EMPTY FILE TO AVOID SNAKEMAKE FAILURE LACKING OUTPUT.
 
 ### Integrate Marc's alignment workflow
 
