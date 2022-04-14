@@ -223,9 +223,27 @@ Note: I MUST remember that when using awk inside snakemake, I must use double br
 - Maybe it would be more flexible to just transform the results inside an R script, where I can use conditional statements more easily.
 - There is no need to select a Universe, g:Profiler uses one automatically.
 
-#### GSEAs
-- I need to indicate the column that contains the statistic in the DGE list in order to rank the genes. They are using the shrunkenlFC. Should I use the statistic?
-- If instead of ENSEMBL, GENEID is used, the split should be done always before the comma. If human or mouse is used with ENSEMBL ID, the split should be before the point. I solved this with this statement inside the fgsea script:
+#### GSEA
+- The GSEA is performed with fgsea. It uses a ranked list of genes (by statistic) that can be identified by ENSEMBL ID (default at CNAG) or SYMBOL.
+- To get the identifier, I have to split the rownames of the DEG results and select either the first (ENSEMBL) or the second (SYMBOL) name in the rownames. The names are separated by commas, so I just split by comma in most of the cases and use a `colid` variable to select either the first or the second identifier.
+
+```
+if(snakemake@config$id_type == "ENSEMBL" |
+   is.null(snakemake@config$id_type)){
+  print("Using ENSEMBLID")
+  colid <- 1
+}else{
+  if(snakemake@config$id_type == "SYMBOL"){
+    print("Using SYMBOL")
+    colid <- 2
+  }else{
+    print("Unknown gene identifier. Defaulting to ENSEMBL")
+    colid <- 1
+  }
+}
+```
+
+- If human or mouse ENSEMBL is used,  there is a second part of the ENSEMBL ID, preceded by a point, which can be discarded. Otherwise everything is separed by commas. I solved this with this statement inside the fgsea script:
 
 ```
 # Getting the split character:
@@ -241,8 +259,26 @@ if(colid == 1){
   }
 }
 ```
-- I can make changes to avoid the COLID variable, which states which of the names should be used (ENSEMBL, GENEID), to something more intuitive in the config file like identifier.
-- With the ENSEMBL ID I can use a GMT file that contains all the pathways for the organism.
+
+The `split` variable and the `colid` variable are then used to get the ranked list:
+
+```
+ranks <- data.frame(list(ID=sapply(strsplit(rownames(raw_table),
+                                            split), 
+                                            function(x) unlist(x)[colid]),
+                         Rank=raw_table[,rank]))
+```
+Always a comma, but if colid equals 1 (ENSEMBL) and human or mouse are the species, the names are separated with a point.
+- I have to use an appropiate GMT file and extract its information with the appropiate function:
+
+```
+allLevels <- gmtPathways(snakemake@input$gmt)
+```
+
+GMT files can be downloaded from: https://www.gsea-msigdb.org/gsea/msigdb/
+
+- `fgsea` uses Montecarlo approach. If I specify the `nperm` argument setting the permutationts, a warning appears, stating that I should not use simple fgsea, but multilevel fgsea. I asked Bea about this and she said she'd bring it to Anna.
+- Maybe there is an error in the code. When running `ranks <- unique(ranks)` the length of the ranked list diminishes, but I get a warning that some ENSEMBL names are repeated. Should I change the code to `ranks <- unique(names(ranks))`? I should ask about this.
 - Maybe it would be interesting to create some graphs, like in the GSEA, like those in the REVIGO.
 
 
@@ -254,6 +290,9 @@ Note: IF THERE ARE NO DEGs, I SHOULD CREATE AN EMPTY FILE TO AVOID SNAKEMAKE FAI
 - He told me it does not work. I should revise it. I can connect to the CNAG cluster and try it in interactive mode. I created aliases. Once in the cluster I can enter interactive mode with `mnsh -C 8 -x`.
 
 ### Integrate everything toghether
+
+**THIS SHOULD BE UPDATED, AS IS NOT DONE LIKE THIS**
+
 - I should probably make subworkflows for different options in the config.
 - I can get the output for rule all with different methods. One is to define a function that gets it. I can use something like this:
 

@@ -58,7 +58,7 @@ ranks <- data.frame(list(ID=sapply(strsplit(rownames(raw_table),
                                             split), 
                                             function(x) unlist(x)[colid]),
                          Rank=raw_table[,rank]))
-ranks<- unique(ranks)
+ranks <- unique(ranks)
 ranks <- setNames(ranks$Rank, ranks$ID)
 ranks <- ranks[!is.na(ranks)]
 
