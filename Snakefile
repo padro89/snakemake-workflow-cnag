@@ -12,6 +12,9 @@ def get_deseq_output(wildcards):
     #final_output.append(rules.select_deg.output)
     return deseq_output
 
+def get_limma_output(wildcards):
+    return rules.limma.output
+
 def get_fgsea_output(wildcards):
     if config["onlypca"] == False:
         fgsea_output = expand(rules.fgsea.output, contrast = config["contrasts"])
@@ -43,9 +46,9 @@ configfile: "config.yaml"
 rule all:
     input:
         get_pca_output,
-        get_deseq_output,
-        get_fgsea_output,
-        #get_limma_output
+        #get_deseq_output,
+        #get_fgsea_output,
+        get_limma_output
 
 # Running the GSEA
 
@@ -122,3 +125,14 @@ rule PCA:
         dds = temp(config["path"]["dge"]+"/dds")
     script:
         "scripts/PCA.R"
+
+rule limma:
+    input:
+        counts = "../testdata/counts_3",
+        info = "../testdata/info_3_continua.txt"
+    output:
+        mds = config["path"]["dge"]+"/MDS.pdf",
+    #params:
+    #    contrast = get_contrast,
+    script:
+        "scripts/limma_voom_basic.R"
