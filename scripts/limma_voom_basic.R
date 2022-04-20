@@ -26,7 +26,7 @@ group <- factor(info[,group])
 
 y <- DGEList(counts = counts)
 isexpr <- rowSums(cpm(y) > 1) >= 3
-y=y[isexpr,keep.lib.size=FALSE]
+y <- y[isexpr,keep.lib.size=FALSE]
 y=calcNormFactors(y)
 dim(y)
 
