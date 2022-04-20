@@ -10,6 +10,7 @@ dependencies:
   - r-rcolorbrewer
   - r-ggplot2
   - r-gridextra
+  - r-ggrepel
   - r-r.methodss3
   - r-ashr
   - r-gprofiler2
@@ -17,7 +18,14 @@ dependencies:
   - r-data.table
   - bioconductor-biobase
   - bioconductor-genefilter
+  - bioconductor-sva
   - bioconductor-deseq2
+  - bioconductor-limma
+  - bioconductor-edger
   - bioconductor-biocparallel
   - bioconductor-fgsea
+  - star
+  - rsem
+  - trim-galore
+  - fastqc
  
