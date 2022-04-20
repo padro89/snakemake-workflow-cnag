@@ -1,5 +1,5 @@
 project: "TEST_01"
-meta: "/home/joan/OneDrive/UOC/TFM/snakemake-workflow-cnag/test.tsv"
+meta: "/scratch/devel/mdabad/DEVEL/snakemake/TEST/rnapipeline/meta.tsv"
 
 # Mapping parameters
 paired: false
