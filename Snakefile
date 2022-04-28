@@ -41,7 +41,7 @@ rule all:
 
 # Loading config file
 
-configfile: "config.yaml"
+configfile: "config_limma.yml"
 
 rule all:
     input:
@@ -128,10 +128,10 @@ rule PCA:
 
 rule limma:
     input:
-        counts = "../testdata/counts_3",
-        info = "../testdata/info_3_continua.txt"
+        counts = "../testdata/prova_grups/counts_10.txt",
+        info = "../testdata/prova_grups/info_10.txt"
     output:
-        mds = config["path"]["dge"]+"/MDS.pdf",
+        mds = config["path"]["dge"]+"/MDS.pdf"
     #params:
     #    contrast = get_contrast,
     script:

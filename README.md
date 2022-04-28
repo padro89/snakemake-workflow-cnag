@@ -351,7 +351,12 @@ lfc <- lfcShrink(dds, coef="condition_3_vs_2", type="apeglm")
 
 ### Implement the option to use limma instead of DESeq2
 
-- It should be specified in the config.yaml whether DESeq2 or limma-voom should be used.
+- I adapted a script using Limma instead of DESeq2.
+- I should probably divide it in two scripts, one to perform the PCA (with the voom and cpm method), and one to perform the DGE analysis.
+- The main challenge is to use complex contrasts, with `makeContrasts()` function. 
+- I specified a different format for the contrasts in the config file to make this possible, which is then parsed in the file to create de contrasts matrix. It allows many kinds of contrasts.
+- Since with the interactions, the number of output files is variable -and I couldn't make it write the output to the S4 object inside a for loop, I decided to create the files directly inside the R script and get them as output through wildcards. Maybe, if I can time, I could try to improve this.
+- The problem, now, is to create a pheatmap for each comparison, specially for the interactions, as the script separates the data through the 'vs', which does not work in the interactions. In fact, seeing how I have specified the names, it does not work at all. 
 
 ### Implement the option to create a "Materials and Methods" file
 
