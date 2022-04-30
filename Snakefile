@@ -41,14 +41,14 @@ rule all:
 
 # Loading config file
 
-configfile: "config_limma.yml"
+configfile: "config.yaml"
 
 rule all:
     input:
         get_pca_output,
-        #get_deseq_output,
-        #get_fgsea_output,
-        get_limma_output
+        get_deseq_output,
+        get_fgsea_output,
+        #get_limma_output
 
 # Running the GSEA
 
@@ -126,10 +126,21 @@ rule PCA:
     script:
         "scripts/PCA.R"
 
+# rule PCA_limma:
+#     input:
+#         counts = "../testdata/prova_grups/counts_10.txt",
+#         info = "../testdata/prova_grups/info_10.txt"
+#     output:
+#         sampletosample = config["path"]["dge"]+"/sampletosample_heatmap.pdf",
+#         pcas = config["path"]["dge"]+"/PCA.pdf",
+#         pc_contribution = config["path"]["dge"]+"/pc_contribution.txt",
+#     script:
+#         "scripts/limma_voom_basic_prova.R"
+
 rule limma:
     input:
         counts = "../testdata/prova_grups/counts_10.txt",
-        info = "../testdata/prova_grups/info_10.txt"
+        info = "../testdata/prova_grups/info_10.txt",
     output:
         mds = config["path"]["dge"]+"/MDS.pdf"
     #params:

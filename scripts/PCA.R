@@ -22,7 +22,6 @@ library("methods")
 # S'utilitzen
 group <- snakemake@config$group
 control <- snakemake@config$control
-project <- snakemake@config$project
 plot <- snakemake@config$plot
 factors <- snakemake@config$factors
 continuous <- snakemake@config$continuous

@@ -13,7 +13,7 @@ continuous: []
 # Splits to perform to the continuous variable to factorize it
 n_continuous_splits: [3]
 # Variable that contains the groups
-group: "GROUP"
+group: "CONDITION"
 # group: "GROUP_DUMMY"
 # Control group (only DESeq2)
 control: 
