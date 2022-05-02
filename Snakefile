@@ -1,28 +1,45 @@
+
+# Loading config file
+
+configfile: "config.yaml"
+
+# Functions to get output and some parameters
 def get_contrast(wildcards):
     return config["contrasts"][wildcards.contrast]
 
 def get_pca_output(wildcards):
-    return rules.PCA.output
+    pca_output = []
+    if config["dge_method"] == "deseq2":
+        pca_output = expand(rules.pca_deseq2.output, contrast = config["contrasts"])
+    return pca_output
 
-def get_deseq_output(wildcards):
+def get_deseq2_output(wildcards):
+    deseq2_output = []
     if config["onlypca"] == False:
-        deseq_output = expand(rules.ora.output, contrast = config["contrasts"])
-    else:
-        deseq_output = []
-    #final_output.append(rules.select_deg.output)
-    return deseq_output
+        if config["dge_method"] == "deseq2":
+            deseq2_output = expand(rules.dge_deseq2.output, contrast = config["contrasts"])
+    return deseq2_output
 
 def get_limma_output(wildcards):
-    return rules.limma.output
+    limma_output = []
+    if config["onlypca"] == False:
+        if config["dge_method"] == "limma":
+            limma_output = expand(rules.dge_limma.output, contrast = config["contrasts"])
+    return limma_output
+
+def get_ora_output(wildcards):
+    ora_output = []
+    if config["onlypca"] == False:
+        ora_output = expand(rules.ora.output, contrast = config["contrasts"])
+    return ora_output
 
 def get_fgsea_output(wildcards):
+    fgsea_output = []
     if config["onlypca"] == False:
         fgsea_output = expand(rules.fgsea.output, contrast = config["contrasts"])
-    else:
-        fgsea_output = []
-    return fgsea_output
+    return fgsea_output    
 
-# Mapping workflows
+# Rules to include
 """# Including rules
 include: "rules/common.smk"
 include: "rules/trim.smk"
@@ -39,18 +56,17 @@ rule all:
         config['project']+".isoforms.tsv",
         config['project']+".genes.tsv"""
 
-# Loading config file
 
-configfile: "config.yaml"
-
+# Target rule
 rule all:
     input:
         get_pca_output,
-        get_deseq_output,
-        get_fgsea_output,
-        #get_limma_output
+        get_deseq2_output,
+        get_limma_output,
+        get_ora_output,
+        get_fgsea_output
 
-# Running the GSEA
+# Other rules (to be put in other files)
 
 rule fgsea:
     input:
@@ -61,9 +77,6 @@ rule fgsea:
         fgsea = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.tsv"
     script:
         "scripts/fgsea.R"
-
-
-# Running the ORA
 
 rule ora:
     input:
@@ -83,67 +96,75 @@ rule select_deg:
         "cat {input} | awk '{{if($NF < 0.05 && sqrt($4^2) > log(1.5)/log(2))"
         " print $1}}' | cut -d ',' -f 1 | cut -d '.' -f 1 > {output}"
 
-# Running de DGE analysis with DESeq2
 
-rule dge: 
-    input:
-        dds_design = config["path"]["dge"]+"/dds_design",
-        rlogmat = config["path"]["dge"]+"/rlogMat.txt",
-    output:
-        stats = config["path"]["dge"]+"/{contrast}/{contrast}_stats.txt",
-        deg_results = config["path"]["dge"]+"/{contrast}/{contrast}_deg_results.txt",
-        topDEgenes_heatmap = config["path"]["dge"]+"/{contrast}/{contrast}_top50DEgenes_heatmap.pdf",
-        heatmap_custom = config["path"]["dge"]+"/{contrast}/{contrast}_topgenes_heatmap.tiff",
-    params: 
-        contrast = get_contrast,
-    script:
-        "scripts/deseq2.R"
 
-# Calculating dispersion with the design
 
-rule design:
-    input:
-        dds = config["path"]["dge"]+"/dds"
-    output:
-        dds_design = temp(config["path"]["dge"]+"/dds_design"),
-        norm_counts = config["path"]["dge"]+"/norm_counts.txt"
-    script:
-        "scripts/deseq2_design.R"
 
 # Running the PCA 
 
-rule PCA:
-    input:
-        counts = "../testdata/counts_3",
-        info = "../testdata/info_3_continua.txt"
-    # These directories should make use of wildcards from the config file.
-    output:
-        pcas = config["path"]["dge"]+"/PCA.pdf",
-        sampletosample = config["path"]["dge"]+"/sampletosample_heatmap.pdf",
-        rlog = config["path"]["dge"]+"/rlogMat.txt",
-        pc_contribution = config["path"]["dge"]+"/pc_contribution.txt",
-        dds = temp(config["path"]["dge"]+"/dds")
-    script:
-        "scripts/PCA.R"
+if config["dge_method"] == "deseq2":
+    rule pca_deseq2:
+        input:
+            counts = config["counts"],
+            info = config["info"]
+        # These directories should make use of wildcards from the config file.
+        output:
+            pcas = config["path"]["dge"]+"/PCA.pdf",
+            sampletosample = config["path"]["dge"]+"/sampletosample_heatmap.pdf",
+            rlog = config["path"]["dge"]+"/rlogMat.txt",
+            pc_contribution = config["path"]["dge"]+"/pc_contribution.txt",
+            dds = temp(config["path"]["dge"]+"/dds")
+        script:
+            "scripts/PCA.R"
 
-# rule PCA_limma:
-#     input:
-#         counts = "../testdata/prova_grups/counts_10.txt",
-#         info = "../testdata/prova_grups/info_10.txt"
-#     output:
-#         sampletosample = config["path"]["dge"]+"/sampletosample_heatmap.pdf",
-#         pcas = config["path"]["dge"]+"/PCA.pdf",
-#         pc_contribution = config["path"]["dge"]+"/pc_contribution.txt",
-#     script:
-#         "scripts/limma_voom_basic_prova.R"
+        # Calculating dispersion with the design
 
-rule limma:
-    input:
-        counts = "../testdata/prova_grups/counts_10.txt",
-        info = "../testdata/prova_grups/info_10.txt",
-    output:
-        mds = config["path"]["dge"]+"/MDS.pdf"
-    #params:
-    #    contrast = get_contrast,
-    script:
-        "scripts/limma_voom_basic.R"
+    rule design_deseq2:
+        input:
+            dds = config["path"]["dge"]+"/dds"
+        output:
+            dds_design = temp(config["path"]["dge"]+"/dds_design"),
+            norm_counts = config["path"]["dge"]+"/norm_counts.txt"
+        script:
+            "scripts/deseq2_design.R"
+
+            # Running de DGE analysis with DESeq2
+
+    rule dge_deseq2: 
+        input:
+            dds_design = config["path"]["dge"]+"/dds_design",
+            rlogmat = config["path"]["dge"]+"/rlogMat.txt",
+        output:
+            stats = config["path"]["dge"]+"/{contrast}/{contrast}_stats.txt",
+            deg_results = config["path"]["dge"]+"/{contrast}/{contrast}_deg_results.txt",
+            topDEgenes_heatmap = config["path"]["dge"]+"/{contrast}/{contrast}_top50DEgenes_heatmap.pdf",
+            heatmap_custom = config["path"]["dge"]+"/{contrast}/{contrast}_topgenes_heatmap.tiff",
+        params: 
+            contrast = get_contrast,
+        script:
+            "scripts/deseq2.R"
+
+if config["dge_method"] == "limma":
+    rule pca_limma:
+        input:
+            counts = config["counts"],
+            info = config["info"]
+        output:
+            sampletosample = config["path"]["dge"]+"/sampletosample_heatmap.pdf",
+            pcas = config["path"]["dge"]+"/PCA.pdf",
+            pc_contribution = config["path"]["dge"]+"/pc_contribution.txt",
+            dge = temp(config["path"]["dge"]+"/dge")
+        script:
+            "scripts/PCA_limma.R"
+
+    rule dge_limma:
+        input:
+            dge = config["path"]["dge"]+"/dge"
+        output:
+            expand(config["path"]["dge"]+"/{contrast}/{contrast}_deg_results.txt",
+            contrast = config["contrasts"]),
+            expand(config["path"]["dge"]+"/{contrast}/{contrast}_heatmap.pdf",
+            contrast = config["contrasts"]),
+            logcpm = config["path"]["dge"]+"/logCPM.txt"
+        script:
+            "scripts/limma_voom_basic.R"

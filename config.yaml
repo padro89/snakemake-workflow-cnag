@@ -20,43 +20,55 @@ path:
   quant: "/tmp"
   dge: "/home/joan/Test"
 
-# DESeq2 parameters
+# DGEA parameters
+# Method to use. Either "limma" or "deseq2"
+dge_method: "limma"
+# Path to the files
+info: "/home/joan/OneDrive/UOC/TFM/testdata/info_3.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/info_10.txt"
+counts: "/home/joan/OneDrive/UOC/TFM/testdata/counts_3.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/counts_10.txt"
 # Lists of covariants to include (or NULL).
-factors: ["CODE","GENE","SEX","GROUP","GROUP_DUMMY"]
-continuous: ["CONTINUA1"]
+factors: ["CODE","GENE","SEX","GROUP"] #["MOTHER","DIET","CONDITION","GROUP"] #
+continuous: []
 n_continuous_splits: [3]
 # Variable that contains the groups
-group: "GROUP_DUMMY"
+group: "GROUP"
 # group: "GROUP_DUMMY"
 # Control group
 control: "Unaffected"
 # Only PCA should be generated? (Boolean)
 onlypca: false
 # String with the formula to use for the model
-formula: "~SEX + group"
+formula: "~0+group+SEX" #"~SEX+group" #  
 # Each contrast
 contrasts:
-  #continua1_vs_continua3:
-  #  - CONTINUA1_1
-  #  - CONTINUA1_3
-  #continua2_vs_continua3:
-  #  - CONTINUA1_2
-  #  - CONTINUA1_3
-  #affected_vs_unaffected: 
-  # - Affected
-  # - Unaffected
-  mild_vs_unaffected: 
-    - Mild
-    - Unaffected
-  severe_vs_unaffected:
-    - Severe
-    - Unaffected
-  mild_vs_severe:
-    - Mild
-    - Severe
+  # DESeq2 example
+  # affected_vs_unaffected:
+  #   - Affected
+  #   - Unaffected
+  # mild_vs_unaffected: 
+  #   - Mild
+  #   - Unaffected
+  # severe_vs_unaffected:
+  #   - Severe
+  #   - Unaffected
+  # mild_vs_severe:
+  #   - Mild
+  #   - Severe
 
-# Shrinkage method (either "normal" or "ashr". "apeglm" not implemented)
-shrinkage_method: "ashr"
+  # limma example
+  affected_vs_unaffected: Affected - Unaffected
+  # affected_D_vs_unaffected_D: "affected_D - control_D"
+  # affected_N_vs_unaffected_N: "affected_N - control_N"
+  # affected_E_vs_unaffected_E: "affected_E - control_E"
+  # D_vs_E_int: "(affected_D - control_D) - (affected_E - control_E)"
+  # D_vs_N_int: "(affected_D - control_D) - (affected_N - control_N)"
+  # N_vs_E_int: "(affected_N - control_N) - (affected_E - control_E)"
+
+# Interaction identifier (Only for limma): A string (either "int", "diff" or something else)
+interaction_id: "int"
+
+# Shrinkage method (ONLY DESeq2: either "normal" or "ashr". "apeglm" not implemented)
+shrinkage_method: "normal"
 # Whether plots shall be generated
 plot: True
 # Specify plot atributes
@@ -69,7 +81,7 @@ plot_atr:
 
 ## Pathway analysis params
 # Species
-species: "hsapiens"
+species: "Homo sapiens" #"Mus musculus"
 ## ORA params
 # Base URL
 baseurl: "https://biit.cs.ut.ee/gprofiler"
@@ -80,5 +92,5 @@ orth_species: false
 gmt: "/home/joan/OneDrive/UOC/TFM/testdata/Symbol2Reactome_curated.gmt"
 # Gene identifier to use in the GSEA ("ENSEMBL","SYMBOL")
 id_type: "SYMBOL"
-# Rank column number or name ("stat","shrunkenlfc")
-rank: "stat"
+# Rank column number or name. Defaults to "stat" for DESeq2, and "t" for limma.
+rank: "t"

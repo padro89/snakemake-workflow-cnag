@@ -8,12 +8,18 @@ species <- snakemake@config$species
 baseurl <- snakemake@config$baseurl
 orth_species <- snakemake@config$orth_species
 
-# Check some defaults
+# Adapt species name
 if(is.null(species)){
   species<-"hsapiens"
   print("No species specified. Defaulting to H. sapiens")
+}else{
+  species <- unlist(strsplit(species, " "))
+  species <- paste0(tolower(substr(species[1],1,1)),
+                    species[2])
 }
 
+
+# Check some defaults
 if(is.null(baseurl)){
   baseurl<-"https://biit.cs.ut.ee/gprofiler"
   print("No baseurl specified. Defaulting to https://biit.cs.ut.ee/gprofiler")

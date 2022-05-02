@@ -223,6 +223,8 @@ Note: I MUST remember that when using awk inside snakemake, I must use double br
 - Maybe it would be more flexible to just transform the results inside an R script, where I can use conditional statements more easily.
 - There is no need to select a Universe, g:Profiler uses one automatically.
 
+- **In order to better function with the FGSEA, the full species name should be specified and converted to the short version (Mus musculus to mmusculus)**
+
 #### GSEA
 - The GSEA is performed with fgsea. It uses a ranked list of genes (by statistic) that can be identified by ENSEMBL ID (default at CNAG) or SYMBOL.
 - To get the identifier, I have to split the rownames of the DEG results and select either the first (ENSEMBL) or the second (SYMBOL) name in the rownames. The names are separated by commas, so I just split by comma in most of the cases and use a `colid` variable to select either the first or the second identifier.
@@ -275,7 +277,12 @@ Always a comma, but if colid equals 1 (ENSEMBL) and human or mouse are the speci
 allLevels <- gmtPathways(snakemake@input$gmt)
 ```
 
-GMT files can be downloaded from: https://www.gsea-msigdb.org/gsea/msigdb/
+- I should create a rule that downloads the file from reactome (if not otherwise specified), filters it for species, and using a dictionary creates a GMT file containing pathways in rows and concatenation of genes in the secnod column.
+
+- Latest reactome pathways can be obtained in: https://reactome.org/download/current/Ensembl2Reactome_All_Levels.txt
+
+- Specific GMT files collections can be downloaded from: https://www.gsea-msigdb.org/gsea/msigdb/
+
 
 - `fgsea` uses Montecarlo approach. If I specify the `nperm` argument setting the permutationts, a warning appears, stating that I should not use simple fgsea, but multilevel fgsea. I asked Bea about this and she said she'd bring it to Anna.
 - Maybe there is an error in the code. When running `ranks <- unique(ranks)` the length of the ranked list diminishes, but I get a warning that some ENSEMBL names are repeated. Should I change the code to `ranks <- unique(names(ranks))`? I should ask about this.
@@ -283,6 +290,7 @@ GMT files can be downloaded from: https://www.gsea-msigdb.org/gsea/msigdb/
 
 
 Note: IF THERE ARE NO DEGs, I SHOULD CREATE AN EMPTY FILE TO AVOID SNAKEMAKE FAILURE LACKING OUTPUT.
+**Note 2: I should try to parallellize the process.**
 
 ### Integrate Marc's alignment workflow
 
@@ -355,8 +363,11 @@ lfc <- lfcShrink(dds, coef="condition_3_vs_2", type="apeglm")
 - I should probably divide it in two scripts, one to perform the PCA (with the voom and cpm method), and one to perform the DGE analysis.
 - The main challenge is to use complex contrasts, with `makeContrasts()` function. 
 - I specified a different format for the contrasts in the config file to make this possible, which is then parsed in the file to create de contrasts matrix. It allows many kinds of contrasts.
-- Since with the interactions, the number of output files is variable -and I couldn't make it write the output to the S4 object inside a for loop, I decided to create the files directly inside the R script and get them as output through wildcards. Maybe, if I can time, I could try to improve this.
-- The problem, now, is to create a pheatmap for each comparison, specially for the interactions, as the script separates the data through the 'vs', which does not work in the interactions. In fact, seeing how I have specified the names, it does not work at all. 
+- Since with the interactions, the number of output files is variable -and I couldn't make it write the output to the S4 object inside a for loop, I decided to create the files directly inside the R script and get them as output through wildcards.
+- If there are no DEGs, and for the interaction terms, an empty PDF file is created to allow snakemake to handle the output.
+- In the config file one specifies the method to use, and several `get_output_` functions get the correct output according to the config file.
+- Rules are idnented in if statements so there's no conflict between them.
+- There is a huge difference between limma findings and DESeq2 findings in the same project. I will try to manually filter the DESeq2 genes, see if there are outliers in the heatmap, and see if there is any similarity between the FGSEA from both projects.
 
 ### Implement the option to create a "Materials and Methods" file
 
