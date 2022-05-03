@@ -92,7 +92,7 @@ if config["gmt"] is None:
 
     rule make_gmt:
         input:
-            config["path"]["dge"]+"/ensemble2reactome.txt"
+            reactome = config["path"]["dge"]+"/ensemble2reactome.txt"
         output:
             gmt = config["path"]["dge"]+f"ensemble2reactome_{current_date}.gmt"
         script:
