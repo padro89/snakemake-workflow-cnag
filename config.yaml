@@ -81,7 +81,7 @@ baseurl: "https://biit.cs.ut.ee/gprofiler"
 orth_species: false
 ## FGSEA params
 # GMT file: Absolute path to the environment or blank for automatic Reactome pathways.
-gmt: "/home/joan/OneDrive/UOC/TFM/testdata/Ensembl2Reactome.HSA.gmt"
+gmt: #"/home/joan/OneDrive/UOC/TFM/testdata/Ensembl2Reactome.HSA.gmt"
 # Gene identifier to use in the GSEA ("ENSEMBL","SYMBOL")
 id_type: "patata"
 # Rank column number or name. If blank, defaults to "stat" for DESeq2, and "t" for limma.

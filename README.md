@@ -291,7 +291,7 @@ Always a comma, but if colid equals 1 (ENSEMBL) and human or mouse are the speci
 allLevels <- gmtPathways(snakemake@input$gmt)
 ```
 
-- I should create a rule that downloads the file from reactome (if not otherwise specified), filters it for species, and using a dictionary creates a GMT file containing pathways in rows and concatenation of genes in the secnod column.
+- I should create a rule that downloads the file from reactome (if not otherwise specified) (with bash, to paralellize the process at the start of the workflow, as it takes time), filters it for species with pandas, and using a dictionary creates a GMT file containing pathways in rows and concatenation of genes in the secnod column.
 - Can I ask for user input? I can use if statements in the rule generating the GMT, and use something in the lines of `input("GMT is blank. Do you want to download latest GMT from reactome?")`.
 
 - Latest reactome pathways can be obtained in: https://reactome.org/download/current/Ensembl2Reactome_All_Levels.txt

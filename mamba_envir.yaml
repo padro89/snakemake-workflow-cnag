@@ -28,4 +28,5 @@ dependencies:
   - rsem
   - trim-galore
   - fastqc
+  - pandas
  

@@ -1,4 +1,3 @@
-
 # Loading config file
 
 configfile: "config.yaml"
@@ -69,16 +68,46 @@ rule all:
         get_fgsea_output
 
 # Other rules (to be put in other files)
+if config["gmt"] is not None:
+    rule fgsea:
+        input:
+            deg_results = config["path"]["dge"]+"/{contrast}/{contrast}_deg_results.txt",
+            gmt = config["gmt"],
+        output:
+            fgsea_pdf = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.pdf",
+            fgsea = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.tsv"
+        script:
+            "scripts/fgsea.R"
 
-rule fgsea:
-    input:
-        deg_results = config["path"]["dge"]+"/{contrast}/{contrast}_deg_results.txt",
-        gmt = config["gmt"],
-    output:
-        fgsea_pdf = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.pdf",
-        fgsea = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.tsv"
-    script:
-        "scripts/fgsea.R"
+if config["gmt"] is None:
+    from datetime import datetime
+    current_date = datetime.now().strftime("%Y_%m_%d")
+
+    rule get_reactome_pathways:
+        output:
+            reactome = config["path"]["dge"]+"/ensemble2reactome.txt"
+        shell:
+            "echo 'Downloading patwhays from reactome, it may take a while' &&"
+            "wget https://reactome.org/download/current/Ensembl2Reactome_All_Levels.txt"
+
+    rule make_gmt:
+        input:
+            config["path"]["dge"]+"/ensemble2reactome.txt"
+        output:
+            gmt = config["path"]["dge"]+f"ensemble2reactome_{current_date}.gmt"
+        script:
+            "scripts/create_gmt.py"
+
+
+    rule fgsea:
+        input:
+            deg_results = config["path"]["dge"]+"/{contrast}/{contrast}_deg_results.txt",
+            gmt = config["path"]["dge"]+f"ensemble2reactome_{current_date}.gmt"
+        output:
+            fgsea_pdf = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.pdf",
+            fgsea = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.tsv"
+        script:
+            "scripts/fgsea.R"    
 
 rule ora:
     input:
