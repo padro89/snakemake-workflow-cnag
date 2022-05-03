@@ -218,10 +218,24 @@ awk '{{if($NF<0.05 & sqrt($4^2) > log(1.5)/log(2)) print $1}}'
 ```
 I have tested this result many times, and it gives the same as the filter column.
 
+- If limma is used, the resulting TopTable is different, so **I put the rules inside if statements depending on the config file so it runs differently depending on which is used**.
+
 Note: I MUST remember that when using awk inside snakemake, I must use double brackets{{}}.
 
 - Maybe it would be more flexible to just transform the results inside an R script, where I can use conditional statements more easily.
 - There is no need to select a Universe, g:Profiler uses one automatically.
+- In order to avoid an error if there are no DEGs, I use the `try()` function when reading the table. This function converts the `genes` variable in an object of class `try-error` if it can't read any genes. I then use a conditional statement checking the class to either perform the analysis or print a file explaining there are not enough genes (this allows for the output to be created anyway and avoids Snakemake throwing an error).
+
+```
+genes <- try(read.table(snakemake@input$deg_list, header = F)[,1],
+             silent = F)
+
+if(class(genes) != "try-error"){
+  perform the analysis
+}else{
+  write empty file
+}
+```
 
 - **In order to better function with the FGSEA, the full species name should be specified and converted to the short version (Mus musculus to mmusculus)**
 
@@ -278,13 +292,14 @@ allLevels <- gmtPathways(snakemake@input$gmt)
 ```
 
 - I should create a rule that downloads the file from reactome (if not otherwise specified), filters it for species, and using a dictionary creates a GMT file containing pathways in rows and concatenation of genes in the secnod column.
+- Can I ask for user input? I can use if statements in the rule generating the GMT, and use something in the lines of `input("GMT is blank. Do you want to download latest GMT from reactome?")`.
 
 - Latest reactome pathways can be obtained in: https://reactome.org/download/current/Ensembl2Reactome_All_Levels.txt
 
 - Specific GMT files collections can be downloaded from: https://www.gsea-msigdb.org/gsea/msigdb/
 
 
-- `fgsea` uses Montecarlo approach. If I specify the `nperm` argument setting the permutationts, a warning appears, stating that I should not use simple fgsea, but multilevel fgsea. I asked Bea about this and she said she'd bring it to Anna.
+- `fgsea` uses Montecarlo approach. If I specify the `nperm` argument setting the permutationts, a warning appears, stating that I should not use simple fgsea, but multilevel fgsea. I asked Bea about this and she said she'd **bring it to Anna.**
 - Maybe there is an error in the code. When running `ranks <- unique(ranks)` the length of the ranked list diminishes, but I get a warning that some ENSEMBL names are repeated. Should I change the code to `ranks <- unique(names(ranks))`? I should ask about this.
 - Maybe it would be interesting to create some graphs, like in the GSEA, like those in the REVIGO.
 
@@ -368,6 +383,11 @@ lfc <- lfcShrink(dds, coef="condition_3_vs_2", type="apeglm")
 - In the config file one specifies the method to use, and several `get_output_` functions get the correct output according to the config file.
 - Rules are idnented in if statements so there's no conflict between them.
 - There is a huge difference between limma findings and DESeq2 findings in the same project. I will try to manually filter the DESeq2 genes, see if there are outliers in the heatmap, and see if there is any similarity between the FGSEA from both projects.
+
+#### DuplicateCorrelations
+
+- In case blocking for a variable is preferred, and after using `voom`, the `duplicateCorrelations()` function can be used for blocking and `voom` ran again afterwards. This provides new weights for the regression fit. 
+- I can use a simple `if(is.null(snakemake@config$blocking)){usual path} else {duplicate...}` in the limma script. If this path is used, I should print it onscreen to warn the user (in case it left it accidentally).
 
 ### Implement the option to create a "Materials and Methods" file
 

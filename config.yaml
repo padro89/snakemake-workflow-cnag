@@ -24,10 +24,10 @@ path:
 # Method to use. Either "limma" or "deseq2"
 dge_method: "limma"
 # Path to the files
-info: "/home/joan/OneDrive/UOC/TFM/testdata/info_3.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/info_10.txt"
-counts: "/home/joan/OneDrive/UOC/TFM/testdata/counts_3.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/counts_10.txt"
+info: "/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/info_10.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/info_3.txt" #
+counts: "/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/counts_10.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/counts_3.txt" #
 # Lists of covariants to include (or NULL).
-factors: ["CODE","GENE","SEX","GROUP"] #["MOTHER","DIET","CONDITION","GROUP"] #
+factors: ["MOTHER","DIET","CONDITION","GROUP"] #["CODE","GENE","SEX","GROUP"] #
 continuous: []
 n_continuous_splits: [3]
 # Variable that contains the groups
@@ -38,7 +38,7 @@ control: "Unaffected"
 # Only PCA should be generated? (Boolean)
 onlypca: false
 # String with the formula to use for the model
-formula: "~0+group+SEX" #"~SEX+group" #  
+formula: "~0+group" #"~SEX+group"  #
 # Each contrast
 contrasts:
   # DESeq2 example
@@ -56,21 +56,42 @@ contrasts:
   #   - Severe
 
   # limma example
-  affected_vs_unaffected: Affected - Unaffected
-  # affected_D_vs_unaffected_D: "affected_D - control_D"
-  # affected_N_vs_unaffected_N: "affected_N - control_N"
-  # affected_E_vs_unaffected_E: "affected_E - control_E"
-  # D_vs_E_int: "(affected_D - control_D) - (affected_E - control_E)"
-  # D_vs_N_int: "(affected_D - control_D) - (affected_N - control_N)"
-  # N_vs_E_int: "(affected_N - control_N) - (affected_E - control_E)"
+  # affected_vs_unaffected: Affected - Unaffected
+  affected_D_vs_unaffected_D: "affected_D - control_D"
+  affected_N_vs_unaffected_N: "affected_N - control_N"
+  affected_E_vs_unaffected_E: "affected_E - control_E"
+  D_vs_E_int: "(affected_D - control_D) - (affected_E - control_E)"
+  D_vs_N_int: "(affected_D - control_D) - (affected_N - control_N)"
+  N_vs_E_int: "(affected_N - control_N) - (affected_E - control_E)"
 
 # Interaction identifier (Only for limma): A string (either "int", "diff" or something else)
 interaction_id: "int"
-
 # Shrinkage method (ONLY DESeq2: either "normal" or "ashr". "apeglm" not implemented)
 shrinkage_method: "normal"
+
+## Pathway analysis params
+# Method: Either "gprofiler", "fgsea" or "both"
+pathway_method: "both"
+# Species
+species: "Oryctolagus cuniculus" #"Homo sapiens" #
+## ORA params
+# Base URL
+baseurl: "https://biit.cs.ut.ee/gprofiler"
+# Translate gene ID to orthologous target species. False or the species.
+orth_species: false
+## FGSEA params
+# GMT file: Absolute path to the environment or blank for automatic Reactome pathways.
+gmt: "/home/joan/OneDrive/UOC/TFM/testdata/Ensembl2Reactome.HSA.gmt"
+# Gene identifier to use in the GSEA ("ENSEMBL","SYMBOL")
+id_type: "patata"
+# Rank column number or name. If blank, defaults to "stat" for DESeq2, and "t" for limma.
+rank:
+
+## Plotting
 # Whether plots shall be generated
-plot: True
+plot: true
+# Whether high quality TIFF plots should be generated
+tiff: true
 # Specify plot atributes
 plot_atr:
   # Can I make this a list so it makes several PCA?
@@ -78,19 +99,3 @@ plot_atr:
   heatmap_ann: "group"
   # Number of genes to show in the heatmap
   de_genes_n: 50
-
-## Pathway analysis params
-# Species
-species: "Homo sapiens" #"Mus musculus"
-## ORA params
-# Base URL
-baseurl: "https://biit.cs.ut.ee/gprofiler"
-# Translate gene ID to orthologous target species. False or the species.
-orth_species: false
-## FGSEA params
-# GMT file
-gmt: "/home/joan/OneDrive/UOC/TFM/testdata/Symbol2Reactome_curated.gmt"
-# Gene identifier to use in the GSEA ("ENSEMBL","SYMBOL")
-id_type: "SYMBOL"
-# Rank column number or name. Defaults to "stat" for DESeq2, and "t" for limma.
-rank: "t"

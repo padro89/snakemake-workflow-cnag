@@ -50,10 +50,10 @@ colsExport <- c(
 )
 
 # Get DEGs
-genes <- read.table(snakemake@input$deg_list, header = F)[,1]
+genes <- try(read.table(snakemake@input$deg_list, header = F)[,1],
+             silent = F)
 
-if(length(genes > 0)){
-  # Use specified organism if Orth_species == T
+if(class(genes) != "try-error"){
   if(orth_species != FALSE){
     genes <- gorth(gene, source_organism=species, target_organism=orth_species)$ortholog_ensg
     species <- orth_species

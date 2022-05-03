@@ -30,13 +30,15 @@ def get_limma_output(wildcards):
 def get_ora_output(wildcards):
     ora_output = []
     if config["onlypca"] == False:
-        ora_output = expand(rules.ora.output, contrast = config["contrasts"])
+        if config["pathway_method"] == "both" or config["pathway_method"] == "gprofiler":
+            ora_output = expand(rules.ora.output, contrast = config["contrasts"])
     return ora_output
 
 def get_fgsea_output(wildcards):
     fgsea_output = []
     if config["onlypca"] == False:
-        fgsea_output = expand(rules.fgsea.output, contrast = config["contrasts"])
+        if config["pathway_method"] == "both" or config["pathway_method"] == "fgsea":
+            fgsea_output = expand(rules.fgsea.output, contrast = config["contrasts"])
     return fgsea_output    
 
 # Rules to include
@@ -87,17 +89,25 @@ rule ora:
         "scripts/gprofiler.R"
 
 # Selecting the DEGs.
-rule select_deg:
-    input:
-        deg_results = config["path"]["dge"]+"/{contrast}/{contrast}_deg_results.txt"
-    output:
-        deg_list = temp(config["path"]["dge"]+"/{contrast}/{contrast}_deg_list.txt"),
-    shell:
-        "cat {input} | awk '{{if($NF < 0.05 && sqrt($4^2) > log(1.5)/log(2))"
-        " print $1}}' | cut -d ',' -f 1 | cut -d '.' -f 1 > {output}"
+if config["dge_method"] == "deseq2":
+    rule select_deg_deseq2:
+        input:
+            deg_results = config["path"]["dge"]+"/{contrast}/{contrast}_deg_results.txt"
+        output:
+            deg_list = temp(config["path"]["dge"]+"/{contrast}/{contrast}_deg_list.txt"),
+        shell:
+            "cat {input} | awk '{{if($NF < 0.05 && sqrt($4^2) > log(1.5)/log(2))"
+            " print $1}}' | cut -d ',' -f 1 | cut -d '.' -f 1 > {output}"
 
-
-
+if config["dge_method"] == "limma":
+    rule select_deg_limma:
+        input:
+            deg_results = config["path"]["dge"]+"/{contrast}/{contrast}_deg_results.txt"
+        output:
+            deg_list = temp(config["path"]["dge"]+"/{contrast}/{contrast}_deg_list.txt"),
+        shell:
+            "cat {input} | awk '{{if($6 < 0.05 && sqrt($2^2) > log(1.5)/log(2))"
+            " print $1}}' | cut -d ',' -f 1 | cut -d '.' -f 1 > {output}"
 
 
 # Running the PCA 
