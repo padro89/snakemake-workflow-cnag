@@ -125,7 +125,7 @@ if config["dge_method"] == "deseq2":
             pc_contribution = config["path"]["dge"]+"/pc_contribution.txt",
             dds = temp(config["path"]["dge"]+"/dds")
         script:
-            "scripts/PCA.R"
+            "scripts/PCA_deseq2.R"
 
         # Calculating dispersion with the design
 
