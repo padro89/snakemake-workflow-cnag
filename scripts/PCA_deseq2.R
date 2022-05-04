@@ -5,7 +5,7 @@
 #rm(list=eliminats)
 #rm(eliminats)
 # Guardar-lo amb només l'objecte snakemake actualitzat
-# save.image(file="workspace")
+save.image(file="workspace")
 
 # Load required libraries
 library("DESeq2")
@@ -74,7 +74,7 @@ countdata <- countdata[rownames(coldata)]
 ## Independent filtering ##
 dds <- DESeqDataSetFromMatrix(countData = countdata,
                               colData = coldata,
-                              design = formula("~1"))
+                              design = formula(snakemake@config$formula))
 
 dds <- estimateSizeFactors(dds)
 bc_per_group <- lapply(unique(coldata$group), function (x) rownames(coldata)[coldata$group==x])
@@ -188,5 +188,17 @@ if (plot == T){
               sep = "\t", quote = F,row.names = T, col.names = T)
   
 }
+
 save(dds, file = snakemake@output$dds)
 
+
+# Extract normalized counts
+
+norm_counts <- counts(dds,normalized=TRUE)
+row_sums <- rowSums(norm_counts)
+norm_counts_ordered <- norm_counts[order(row_sums, decreasing = T),]
+colnames(norm_counts_ordered) <- paste0(dds$group,",",
+                                        colnames(norm_counts_ordered))
+counts_dds=(norm_counts_ordered[,order(colnames(norm_counts_ordered))])
+rounded_counts=round(counts_dds,digits=2)
+write.table(rounded_counts, file = snakemake@output$norm_counts,quote=FALSE)

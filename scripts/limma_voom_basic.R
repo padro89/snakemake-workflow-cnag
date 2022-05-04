@@ -2,6 +2,7 @@ save.image(file="workspace")
 
 # Load necessary libraries
 library(limma)
+require(statmod)
 library(BiocParallel)
 library(pheatmap)
 # library(gridExtra)
@@ -17,6 +18,13 @@ library(edgeR)
 load(snakemake@input$dge)
 
 interaction_id <- snakemake@config$interaction_id
+info <- y$samples
+if(is.null(snakemake@config$samples)){
+  info$samples <- rownames(y$samples)
+  samples_var <- "samples"
+}else{
+  samples_var <- snakemake@config$samples
+}
 
 # Model matrix
 mod <- model.matrix(formula(snakemake@config$formula), data = y$samples)
@@ -38,7 +46,18 @@ colnames(contr.matrix) <- names(snakemake@config$contrasts)
 
 # Voom transformation and model fitting with Bayesian error estimation
 v=voom(y,mod)
-fit=lmFit(v,mod)
+
+# Blocking
+if(!is.null(snakemake@config$blocking)){
+  blocking <- as.factor(info[,snakemake@config$blocking])
+  corfit <- duplicateCorrelation(v,mod, block=blocking)
+  v <- voom(y, mod, block = blocking, correlation = corfit$consensus)
+  fit <- lmFit(v, mod, block = blocking, correlation = corfit$consensus)
+}else{
+  fit <- lmFit(v,mod)
+}
+
+# Contrasts and bayesian correction of the errors.
 fit=contrasts.fit(fit, contrasts=contr.matrix)
 fit2=eBayes(fit)
 summary(decideTests(fit2))
@@ -70,7 +89,7 @@ if(length(interactions) < 1){
     if (length(genes) >1) {
       pdf(file = paste0(snakemake@config$path$dge,
                         "/", i, "/", i, "_heatmap.pdf"))
-      pheatmap(expr,scale="row",annotation_col=info[,c("GROUP","SAMPLE")], 
+      pheatmap(expr,scale="row",annotation_col=info[,c("group",samples_var)], 
                border_color = "NA",show_rownames = F)
       dev.off()
     } else {
@@ -95,7 +114,8 @@ if(length(interactions) < 1){
     if (length(genes) >1) {
       pdf(file = paste0(snakemake@config$path$dge,
                         "/", i, "/", i, "_heatmap.pdf"))
-      pheatmap(expr,scale="row",annotation_col=info[,c("GROUP","SAMPLE")], border_color = "NA",show_rownames = F)
+      pheatmap(expr,scale="row",annotation_col=info[,c("group",samples_var)], 
+               border_color = "NA",show_rownames = F)
       dev.off()
     } else {
       # Funky function to make an empty PDF if not enough genes

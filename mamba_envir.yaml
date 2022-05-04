@@ -16,6 +16,7 @@ dependencies:
   - r-gprofiler2
   - r-repr
   - r-data.table
+  - r-statmod
   - bioconductor-biobase
   - bioconductor-genefilter
   - bioconductor-sva
@@ -24,6 +25,7 @@ dependencies:
   - bioconductor-edger
   - bioconductor-biocparallel
   - bioconductor-fgsea
+  - bioconductor-biomart
   - star
   - rsem
   - trim-galore

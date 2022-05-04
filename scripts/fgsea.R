@@ -1,19 +1,17 @@
 save.image(file="workspace")
 
-# Get config
-# species <- snakemake@config$species
-gmt <- snakemake@config$gmt
-# 
-# # Adapt species name
-# if(is.null(species)){
-#   species<-"hsapiens"
-#   print("No species specified. Defaulting to H. sapiens")
-# }else{
-#   species <- unlist(strsplit(species, " "))
-#   species <- paste0(tolower(substr(species[1],1,1)),
-#                     species[2])
-# }
+# Get species
+species <- snakemake@config$species
+species <- unlist(strsplit(species, " "))
+species <- paste0(tolower(substr(species[1],1,1)),
+                  species[2])
 
+# Get GMT
+if(is.null(snakemake@config$gmt)){
+  gmt <- snakemake@input$gmt
+}else{
+  gmt <- snakemake@config$gmt
+}
 
 # Get rank column
 if(is.null(snakemake@config$rank)){
@@ -59,24 +57,11 @@ library('fgsea')
 #library("repr")
 library('data.table')
 library("BiocParallel")
+if(snakemake@config$homologous == T){
+  library("gprofiler2")
+}
 
-# 
-# # Getting the split character:
-# # Defaults to coma
-# split <- "\\,"
-# # If ENSEMBLEID is used
-# if(colid == 1){
-#   # If human or mouse
-#   if(snakemake@config$species == "hsapiens" |
-#      snakemake@config$species == "mmusculus"){
-#     # Sets it to point
-#     split <-"\\."
-#   }
-# }
-
-
-
-
+  
 ### FGSEA
 ## Get ranked list
 raw_table <- read.table(snakemake@input$deg_results, sep=" ", header=T)
@@ -88,14 +73,33 @@ ranks <- data.frame(list(ID=sapply(strsplit(rownames(raw_table),
 
 # Get everything before the point in the identifier, if it exists
 ranks$ID <- sub("\\.[^.]*$", "", ranks$ID)
-
-# Remove duplicates
 ranks <- unique(ranks, by = "ID")
+# Use orthologous human genes
+if(snakemake@config$homologous == T){
+  print("Converting to orthologous human genes.")
+  # # ensembl = useMart("ENSEMBL_MART_ENSEMBL")
+  # # human_mart <- useDataset("hsapiens_gene_ensembl",
+  # #                          mart=ensembl)
+  # target_mart_id <- paste0(species, "_gene_ensembl")
+  # # target_mart = useDataset(target_mart_id,
+  # #                          mart=ensembl)
+  # print("Hello")
+  # human_mart <- useEnsembl(biomart="ENSEMBL_MART_ENSEMBL", dataset = "hsapiens_gene_ensembl")
+  # target_mart <- useEnsembl(biomart="ENSEMBL_MART_ENSEMBL", dataset = target_mart_id)
+  # orthologs <- getLDS(attributes = c("ensembl_gene_id"),
+  #                     values = ranks$ID, mart = target_mart,
+  #                     attributesL = c("ensembl_gene_id"),
+  #                     martL = human_mart)
+  genes <- gorth(ranks$ID, source_organism=species, target_organism="hsapiens")$ortholog_ensg
+  # ranks$ID <- genes?
+}
+
+# Make the ranked list
 ranks <- setNames(ranks$Rank, ranks$ID)
 ranks <- ranks[!is.na(ranks)]
 
 ## Get GMT pathways
-allLevels <- gmtPathways(snakemake@input$gmt)
+allLevels <- gmtPathways(gmt)
 
 ## Run FGSEA
 fgseaRes <- fgsea(allLevels, ranks, eps = 0.0,

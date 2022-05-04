@@ -291,16 +291,12 @@ Always a comma, but if colid equals 1 (ENSEMBL) and human or mouse are the speci
 allLevels <- gmtPathways(snakemake@input$gmt)
 ```
 
-- I should create a rule that downloads the file from reactome (if not otherwise specified) (with bash, to paralellize the process at the start of the workflow, as it takes time), filters it for species with pandas, and using a dictionary creates a GMT file containing pathways in rows and concatenation of genes in the secnod column.
-- Can I ask for user input? I can use if statements in the rule generating the GMT, and use something in the lines of `input("GMT is blank. Do you want to download latest GMT from reactome?")`.
-
+- I created a rule that downloads the file from reactome (if not otherwise specified) (with bash, to paralellize the process at the start of the workflow, as it takes time), filters it for species with pandas, and using a dictionary creates a GMT file containing pathways in rows with the specific genes.
+- If the species is not included in reactome, I create a human GMT and use biomart to find homologous genes in human.
 - Latest reactome pathways can be obtained in: https://reactome.org/download/current/Ensembl2Reactome_All_Levels.txt
-
 - Specific GMT files collections can be downloaded from: https://www.gsea-msigdb.org/gsea/msigdb/
-
-
-- `fgsea` uses Montecarlo approach. If I specify the `nperm` argument setting the permutationts, a warning appears, stating that I should not use simple fgsea, but multilevel fgsea. I asked Bea about this and she said she'd **bring it to Anna.**
-- Maybe there is an error in the code. When running `ranks <- unique(ranks)` the length of the ranked list diminishes, but I get a warning that some ENSEMBL names are repeated. Should I change the code to `ranks <- unique(names(ranks))`? I should ask about this.
+- `fgsea` uses Montecarlo approach. If I specify the `nperm` argument setting the permutationts, a warning appears, stating that I should not use simple fgsea, but multilevel fgsea. I talked to Anna and decided to remove the argument to allow for multiLevelfgsea.
+- Maybe there is an error in the code. When running `ranks <- unique(ranks)` the length of the ranked list diminishes, but I get a warning that some ENSEMBL names are repeated. Should I change the code to `ranks <- unique(names(ranks))`? **I changed the unique selection, that i think was wrong (not sure)**.
 - Maybe it would be interesting to create some graphs, like in the GSEA, like those in the REVIGO.
 
 
@@ -382,12 +378,13 @@ lfc <- lfcShrink(dds, coef="condition_3_vs_2", type="apeglm")
 - If there are no DEGs, and for the interaction terms, an empty PDF file is created to allow snakemake to handle the output.
 - In the config file one specifies the method to use, and several `get_output_` functions get the correct output according to the config file.
 - Rules are idnented in if statements so there's no conflict between them.
-- There is a huge difference between limma findings and DESeq2 findings in the same project. I will try to manually filter the DESeq2 genes, see if there are outliers in the heatmap, and see if there is any similarity between the FGSEA from both projects.
+- There is a huge difference between limma findings and DESeq2 findings in the same project. I tried with another project and it looks fine.
 
 #### DuplicateCorrelations
 
 - In case blocking for a variable is preferred, and after using `voom`, the `duplicateCorrelations()` function can be used for blocking and `voom` ran again afterwards. This provides new weights for the regression fit. 
 - I can use a simple `if(is.null(snakemake@config$blocking)){usual path} else {duplicate...}` in the limma script. If this path is used, I should print it onscreen to warn the user (in case it left it accidentally).
+- It is advised to run voom before and after the call to the `duplicateCorrelation()` function, which it does.
 
 ### Implement the option to create a "Materials and Methods" file
 

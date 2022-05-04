@@ -24,24 +24,29 @@ path:
 # Method to use. Either "limma" or "deseq2"
 dge_method: "limma"
 # Path to the files
-info: "/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/info_10.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/info_3.txt" #
-counts: "/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/counts_10.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/counts_3.txt" #
+info: "/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/info_10.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/covid_info.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/info_3.txt" #
+counts: "/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/counts_10.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/covid_counts.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/counts_3.txt" #
 # Lists of covariants to include (or NULL).
-factors: ["MOTHER","DIET","CONDITION","GROUP"] #["CODE","GENE","SEX","GROUP"] #
+factors: ["MOTHER","DIET","CONDITION","GROUP"] #["Grup"] #["CODE","GENE","SEX","GROUP"] #
 continuous: []
 n_continuous_splits: [3]
 # Variable that contains the groups
-group: "GROUP"
+group: "GROUP" # "GROUP"
 # group: "GROUP_DUMMY"
 # Control group
-control: "Unaffected"
+control: "Sa" # "Unaffected"
+# Variable with sample names. Leave blank if it is the rownames of the info.
+samples: "SAMPLE"
 # Only PCA should be generated? (Boolean)
 onlypca: false
 # String with the formula to use for the model
-formula: "~0+group" #"~SEX+group"  #
+formula: "~0+group" # "~0+group" #"~SEX+group"  #
 # Each contrast
 contrasts:
   # DESeq2 example
+  # covid_vs_sa:
+  #   - COVID19
+  #   - Sa
   # affected_vs_unaffected:
   #   - Affected
   #   - Unaffected
@@ -56,7 +61,9 @@ contrasts:
   #   - Severe
 
   # limma example
-  # affected_vs_unaffected: Affected - Unaffected
+  # The name of the comparison MUST be formed with the levels of the group
+  # COVID19_vs_Sa: "COVID19 - Sa"
+  # affected_vs_unaffected: "Affected - Unaffected"
   affected_D_vs_unaffected_D: "affected_D - control_D"
   affected_N_vs_unaffected_N: "affected_N - control_N"
   affected_E_vs_unaffected_E: "affected_E - control_E"
@@ -66,8 +73,10 @@ contrasts:
 
 # Interaction identifier (Only for limma): A string (either "int", "diff" or something else)
 interaction_id: "int"
+# Blocking variable for duplicate correlations (Only for limma). Leave blank to not block.
+blocking: # "MOTHER"
 # Shrinkage method (ONLY DESeq2: either "normal" or "ashr". "apeglm" not implemented)
-shrinkage_method: "normal"
+shrinkage_method: "ashr"
 
 ## Pathway analysis params
 # Method: Either "gprofiler", "fgsea" or "both"
@@ -77,7 +86,7 @@ species: "Oryctolagus cuniculus" #"Homo sapiens" #
 ## ORA params
 # Base URL
 baseurl: "https://biit.cs.ut.ee/gprofiler"
-# Translate gene ID to orthologous target species. False or the species.
+# Translate gene ID to orthologous target species in gProfiler. False or the species.
 orth_species: false
 ## FGSEA params
 # GMT file: Absolute path to the environment or blank for automatic Reactome pathways.
@@ -86,6 +95,8 @@ gmt: #"/home/joan/OneDrive/UOC/TFM/testdata/Ensembl2Reactome.HSA.gmt"
 id_type: "patata"
 # Rank column number or name. If blank, defaults to "stat" for DESeq2, and "t" for limma.
 rank:
+# Use Biomart for homologous species. Default False. May automatically change to Yes (see log).
+homologous: false
 
 ## Plotting
 # Whether plots shall be generated

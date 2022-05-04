@@ -27,11 +27,13 @@ de_genes_n <- snakemake@config$plot_atr$de_genes_n
 
 ## Load the data
 
-load(snakemake@input$dds_design)
+load(snakemake@input$dds)
 rlogMat <- as.matrix(read.table(snakemake@input$rlogmat,
                                 header = T, row.names = 1))
 contrast <- c("group",snakemake@params$contrast)
 
+## Run Deseq2
+dds <- DESeq(dds, parallel=TRUE)
 
 ## EXTRACT RESULTS ##
 resAll <- results(dds, cooksCutoff=TRUE, contrast=contrast, parallel=TRUE)
@@ -50,7 +52,8 @@ summary(res)
 sink()
   
 ## WRITE TABLE RESULTS ##
-pass_filter <- as.numeric(as.numeric(rownames(resAllOrdered) %in% rownames(resOrdered)) & (resAllOrdered$padj<0.05) )
+pass_filter <- as.numeric(as.numeric(
+  rownames(resAllOrdered) %in% rownames(resOrdered)) & (resAllOrdered$padj<0.05))
 df_all <- as.data.frame(resAllOrdered)
 df_all["filter"]<- pass_filter
 df_all["shrunkenlfc"] = res2[rownames(df_all),"log2FoldChange"]
@@ -69,12 +72,14 @@ if ((plot == T) & (length(rownames(resOrdered))>=de_genes_n)){
     
   pdf(file = snakemake@output$topDEgenes_heatmap,onefile=FALSE)
     
-  pheatmap(select2, fontsize_row=6,show_rownames=TRUE, cluster_rows=TRUE, cluster_cols=TRUE, annotation_col=df,scale="row", fontsize=4, show_colnames = TRUE)
+  pheatmap(select2, fontsize_row=6,show_rownames=TRUE, cluster_rows=TRUE, 
+           cluster_cols=TRUE, annotation_col=df,scale="row", fontsize=4, show_colnames = TRUE)
   dev.off()
   print(paste("top", de_genes_n, "DE genes heatmap done"))
 
   tiff(snakemake@output$heatmap_custom, width=2000, height=2000, res=300)
-  pheatmap(select2, fontsize_row=6,show_rownames=TRUE, cluster_rows=TRUE, cluster_cols=FALSE, annotation_col=df,scale="row", fontsize=4, show_colnames = TRUE)
+  pheatmap(select2, fontsize_row=6,show_rownames=TRUE, cluster_rows=TRUE, 
+           cluster_cols=FALSE, annotation_col=df,scale="row", fontsize=4, show_colnames = TRUE)
   dev.off()
 
 } else {
@@ -88,12 +93,14 @@ if ((plot == T) & (length(rownames(resOrdered))>=de_genes_n)){
       
     pdf(snakemake@output$topDEgenes_heatmap,onefile=FALSE)
     
-    pheatmap(select2, fontsize_row=6,show_rownames=TRUE, cluster_rows=TRUE, cluster_cols=TRUE, annotation_col=df,scale="row", fontsize=4, show_colnames = TRUE)
+    pheatmap(select2, fontsize_row=6,show_rownames=TRUE, cluster_rows=TRUE, 
+             cluster_cols=TRUE, annotation_col=df,scale="row", fontsize=4, show_colnames = TRUE)
     dev.off()
     print(paste("top", de_genes_n, "DE genes heatmap done"))
       
     tiff(snakemake@output$heatmap_custom, width=2000, height=2000, res=300)
-    pheatmap(select2, fontsize_row=6,show_rownames=TRUE, cluster_rows=TRUE, cluster_cols=FALSE, annotation_col=df,scale="row", fontsize=4, show_colnames = TRUE)
+    pheatmap(select2, fontsize_row=6,show_rownames=TRUE, cluster_rows=TRUE, 
+             cluster_cols=FALSE, annotation_col=df,scale="row", fontsize=4, show_colnames = TRUE)
     dev.off()
   }
 }

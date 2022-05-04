@@ -85,24 +85,24 @@ if config["gmt"] is None:
 
     rule get_reactome_pathways:
         output:
-            reactome = config["path"]["dge"]+"/ensemble2reactome.txt"
+            reactome = temp(config["path"]["dge"]+"/ensemble2reactome.txt")
         shell:
             "echo 'Downloading patwhays from reactome, it may take a while' &&"
-            "wget https://reactome.org/download/current/Ensembl2Reactome_All_Levels.txt"
+            "GMT_URL=https://reactome.org/download/current/Ensembl2Reactome_All_Levels.txt &&"
+            "wget $GMT_URL -O {output} && unset $GMT_URL"
 
-    rule make_gmt:
+    rule make_gmt_python:
         input:
             reactome = config["path"]["dge"]+"/ensemble2reactome.txt"
         output:
-            gmt = config["path"]["dge"]+f"ensemble2reactome_{current_date}.gmt"
+            gmt = config["path"]["dge"]+f"/ensemble2reactome_{current_date}.gmt"
         script:
             "scripts/create_gmt.py"
-
 
     rule fgsea:
         input:
             deg_results = config["path"]["dge"]+"/{contrast}/{contrast}_deg_results.txt",
-            gmt = config["path"]["dge"]+f"ensemble2reactome_{current_date}.gmt"
+            gmt = config["path"]["dge"]+f"/ensemble2reactome_{current_date}.gmt"
         output:
             fgsea_pdf = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.pdf",
             fgsea = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.tsv"
@@ -152,26 +152,27 @@ if config["dge_method"] == "deseq2":
             sampletosample = config["path"]["dge"]+"/sampletosample_heatmap.pdf",
             rlog = config["path"]["dge"]+"/rlogMat.txt",
             pc_contribution = config["path"]["dge"]+"/pc_contribution.txt",
-            dds = temp(config["path"]["dge"]+"/dds")
+            dds = temp(config["path"]["dge"]+"/dds"),
+            norm_counts = config["path"]["dge"]+"/norm_counts.txt"
         script:
             "scripts/PCA_deseq2.R"
 
-        # Calculating dispersion with the design
+    #     # Calculating dispersion with the design
 
-    rule design_deseq2:
-        input:
-            dds = config["path"]["dge"]+"/dds"
-        output:
-            dds_design = temp(config["path"]["dge"]+"/dds_design"),
-            norm_counts = config["path"]["dge"]+"/norm_counts.txt"
-        script:
-            "scripts/deseq2_design.R"
+    # rule design_deseq2:
+    #     input:
+    #         dds = config["path"]["dge"]+"/dds"
+    #     output:
+    #         dds_design = temp(config["path"]["dge"]+"/dds_design"),
+    #         norm_counts = config["path"]["dge"]+"/norm_counts.txt"
+    #     script:
+    #         "scripts/deseq2_design.R"
 
             # Running de DGE analysis with DESeq2
 
     rule dge_deseq2: 
         input:
-            dds_design = config["path"]["dge"]+"/dds_design",
+            dds = config["path"]["dge"]+"/dds",
             rlogmat = config["path"]["dge"]+"/rlogMat.txt",
         output:
             stats = config["path"]["dge"]+"/{contrast}/{contrast}_stats.txt",
