@@ -57,10 +57,20 @@ library('fgsea')
 #library("repr")
 library('data.table')
 library("BiocParallel")
-if(snakemake@config$homologous == T){
-  library("gprofiler2")
-}
+library("gprofiler2")
 
+# Check need of orthologous
+gmt_species <- c("Bos taurus", "Caenorhabditis elegans", "Canis familiaris",
+                 "Danio rerio", "Dictyostelium discoideum", "Drosophila melanogaster",
+                 "Gallus gallus","Homo sapiens", "Mus musculus", "Plasmodium falciparum", 
+                 "Rattus norvegicus", "Saccharomyces cerevisiae",
+                 "Schizosaccharomyces pombe", "Sus scrofa", "Xenopus tropicalis")
+
+if(snakemake@config$species %in% gmt_species && is.null(snakemake@config$orth_species)){
+  orthologous <- F
+}else{
+  orthologous <- T
+}
   
 ### FGSEA
 ## Get ranked list
@@ -74,24 +84,22 @@ ranks <- data.frame(list(ID=sapply(strsplit(rownames(raw_table),
 # Get everything before the point in the identifier, if it exists
 ranks$ID <- sub("\\.[^.]*$", "", ranks$ID)
 ranks <- unique(ranks, by = "ID")
-# Use orthologous human genes
-if(snakemake@config$homologous == T){
+
+# Use orthologous genes if needed (defaults to human)
+if(orthologous == T){
   print("Converting to orthologous human genes.")
-  # # ensembl = useMart("ENSEMBL_MART_ENSEMBL")
-  # # human_mart <- useDataset("hsapiens_gene_ensembl",
-  # #                          mart=ensembl)
-  # target_mart_id <- paste0(species, "_gene_ensembl")
-  # # target_mart = useDataset(target_mart_id,
-  # #                          mart=ensembl)
-  # print("Hello")
-  # human_mart <- useEnsembl(biomart="ENSEMBL_MART_ENSEMBL", dataset = "hsapiens_gene_ensembl")
-  # target_mart <- useEnsembl(biomart="ENSEMBL_MART_ENSEMBL", dataset = target_mart_id)
-  # orthologs <- getLDS(attributes = c("ensembl_gene_id"),
-  #                     values = ranks$ID, mart = target_mart,
-  #                     attributesL = c("ensembl_gene_id"),
-  #                     martL = human_mart)
-  genes <- gorth(ranks$ID, source_organism=species, target_organism="hsapiens")$ortholog_ensg
-  # ranks$ID <- genes?
+  # Use alternative orthologous species if one is provided
+  if(!is.null(snakemake@config$orth_species)){
+    target_organism <- snakemake@config$orth_species
+  }else{
+    target_organism <- "hsapiens"
+  }
+  genes <- gorth(ranks$ID, source_organism=species, target_organism=target_organism)
+  # Merge the result in a dataframe
+  merged <- merge(ranks, genes, by.x = "ID", by.y = "input_ensg")
+  # Create the ranked list
+  ranks <- data.frame(ID = merged$ortholog_ensg,
+                      Rank = merged$Rank)
 }
 
 # Make the ranked list

@@ -102,6 +102,20 @@ if ((plot == T) & (length(rownames(resOrdered))>=de_genes_n)){
     pheatmap(select2, fontsize_row=6,show_rownames=TRUE, cluster_rows=TRUE, 
              cluster_cols=FALSE, annotation_col=df,scale="row", fontsize=4, show_colnames = TRUE)
     dev.off()
+  }else{
+    if(plot == T){
+      # Funky function to make an empty PDF if not enough genes
+      pdf(file = snakemake@output$topDEgenes_heatmap,onefile=FALSE)
+      plot(NA, xlim= c(0,5), ylim=c(0,5), bty = "n",
+           xaxt = "n", yaxt = "n", xlab ="", ylab = "")
+      text(2,5,print("Not enough differentially expressed genes for this comparation"))
+      dev.off()
+      tiff(snakemake@output$heatmap_custom, width=2000, height=2000, res=300)
+      plot(NA, xlim= c(0,5), ylim=c(0,5), bty = "n",
+           xaxt = "n", yaxt = "n", xlab ="", ylab = "")
+      text(2,5,print("Not enough differentially expressed genes for this comparation"))
+      dev.off()
+    }
   }
 }
 

@@ -67,7 +67,8 @@ if(class(genes) != "try-error"){
   write.table(result$result[,colsExport],snakemake@output$ora,
               quote= FALSE, sep="\t", row.names = F)
 } else {
-  write.table("Not enough differentialy expressed genes to perform the analysis",
+  print("Not enough DEG to perform the over-representation analysis")
+  write.table("Not enough differentially expressed genes to perform the over-representation analysis",
               snakemake@output$ora,
               quote= FALSE, row.names = F)
 }

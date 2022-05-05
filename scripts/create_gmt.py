@@ -6,9 +6,8 @@ filtered = reactome.iloc[:,[0,3,5]]
 filtered.columns = ["ID","Pathway","Species"]
 species = filtered[filtered.Species.eq(snakemake.config["species"])]
 if species.shape[0] == 0:
-    print(f"No matches for {snakemake.config['species']}. Creating human GMT and trying to use Biomart for homologous human genes")
+    print(f"No matches for {snakemake.config['species']}. Creating human GMT and trying to use g:Profiler2 for orthologous human genes")
     species = filtered[filtered.Species.eq("Homo sapiens")]
-    snakemake.config['homologous'] <- True
 species = species.iloc[:,[0,1]]
 grouped = species.groupby("Pathway")["ID"].apply(' '.join).reset_index()
 genes = pd.DataFrame(grouped["ID"].str.split(" ", expand=True))

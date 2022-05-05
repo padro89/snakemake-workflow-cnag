@@ -9,7 +9,9 @@ def get_contrast(wildcards):
 def get_pca_output(wildcards):
     pca_output = []
     if config["dge_method"] == "deseq2":
-        pca_output = expand(rules.pca_deseq2.output, contrast = config["contrasts"])
+        pca_output = rules.pca_deseq2.output
+    if config["dge_method"] == "limma":
+        pca_output = rules.pca_limma.output
     return pca_output
 
 def get_deseq2_output(wildcards):
@@ -146,7 +148,6 @@ if config["dge_method"] == "deseq2":
         input:
             counts = config["counts"],
             info = config["info"]
-        # These directories should make use of wildcards from the config file.
         output:
             pcas = config["path"]["dge"]+"/PCA.pdf",
             sampletosample = config["path"]["dge"]+"/sampletosample_heatmap.pdf",
@@ -156,19 +157,6 @@ if config["dge_method"] == "deseq2":
             norm_counts = config["path"]["dge"]+"/norm_counts.txt"
         script:
             "scripts/PCA_deseq2.R"
-
-    #     # Calculating dispersion with the design
-
-    # rule design_deseq2:
-    #     input:
-    #         dds = config["path"]["dge"]+"/dds"
-    #     output:
-    #         dds_design = temp(config["path"]["dge"]+"/dds_design"),
-    #         norm_counts = config["path"]["dge"]+"/norm_counts.txt"
-    #     script:
-    #         "scripts/deseq2_design.R"
-
-            # Running de DGE analysis with DESeq2
 
     rule dge_deseq2: 
         input:
@@ -207,4 +195,4 @@ if config["dge_method"] == "limma":
             contrast = config["contrasts"]),
             logcpm = config["path"]["dge"]+"/logCPM.txt"
         script:
-            "scripts/limma_voom_basic.R"
+            "scripts/limma_voom.R"

@@ -1,8 +1,24 @@
 # Transcriptomics workflow
 
-Repository used to create a Snakemake transcriptomics workflow for CNAG
+Repository used to create a Snakemake transcriptomics workflow for CNAG.
 
 In this file I will reflect any ideas I have concerning this project, and what I am using. Eventually it will become a description of the process and it will explain how to use, functioning as the pipeline ducumentation.
+
+The complete environment to run the workflow can be installed through conda/mamba from the mamba_envir.yaml file. Everything should be managed through the config.yml (there are examples of formatting in the file). 
+
+# Known bugs
+- If plot is false there will be errors for sure. I should make conditional output in each rule according to this parameter.
+- I should check the limma PCA and sample to sample heatmap. I don't think it works properly.
+- The 'tiff' argument doesn't do anything. I should create conditional output in each rule according to this parameter.
+
+# To do before finishing
+- Fix the bugs.
+- Add conda dependencies for each rule in case no prefix is specified.
+- Integrate Marc's workflow.
+- Add the project name to each file?
+- Add ranked graphs to the FGSEA.
+- Make different PCAs for different variables (a for look inside the PDF, everything in the same PDF to avoid errors).
+
 
 ## Version control by use of github
 
@@ -26,13 +42,9 @@ For every step of this project I'm going to use github for version control. Belo
 - `deseq2-version`: A branch where I will update the DESeq2 version in the script.
 - `deseq2-modular`: A branch where I try to modularize the DESeq2 script.
 - `pathway_analysis`: A branch where I will try to create a pathway analysis.
-
-
-## Sources:
-
-I found this link where a similar analysis is run, and where I can get ideas:
-
-https://github.com/snakemake-workflows/rna-seq-star-deseq2
+- `limma`: A branch where I implement the limma and limma with duplicateCorrelations DGEA.
+- `gmt`: A branch where I create a rule that downloads data and makes a GMT using a python script if no GMT is specified. If the species is not in the downloaded data from reactome, a human GMT is created and orthologous ENSEMBL IDs are used by default.
+- `align`: A branch to integrate Marc's workflow.
 
 ## What I'd like to do
 
@@ -143,15 +155,9 @@ if(snakemake@config$plot_atr$pca == snakemake@config$group |
 }
 ```
 
-##### Updating the design formula.
-
-- A script called `deseq2_design.R` is used for this.
-- The dds file is passed as input and it runs `DESeq()` function using the specified formula. 
-- It creates a new temporary file called `dds_design`.
-
 ##### Running the DGEA
 
-- A third script, simply called `deseq2.R` uses the `dds_design` object and the `rlogMat.txt` file.
+- A second script, simply called `deseq2.R` uses the `dds_design` object and the `rlogMat.txt` file.
 - In order to run multiple comparisions, the contrasts must be specified in the `config.yaml` like this:
 
 ```
@@ -198,7 +204,9 @@ if config["only_pca"] == True:
 
 - Everytime a comparation is performed, a new normalized counts file is created and saved. I cannot output some files with wildcards and others without, so I should create a new script that only saves the normalized counts (sorted).
 - I created an if statement inside the deseq2.R script that should create a heatmap even if there are not enough differentially expressed genes according to de_genes_n, but at least 25 DEG are present. I should test if it works.
-- I just realized that in the forumla the group variable must always be "group", as the name is changed in the first script. I should really try to simplify the script.
+- In the forumla (and everywhere in the config file) the group variable must always be "group", as the name is changed in the first script. I should really try to simplify the script.
+
+Note: If there are no DEGs, an empty file is created to avoid Snakemake failing.
 
 ### Implement the pathway analysis using Snakemake
 
@@ -220,7 +228,7 @@ I have tested this result many times, and it gives the same as the filter column
 
 - If limma is used, the resulting TopTable is different, so **I put the rules inside if statements depending on the config file so it runs differently depending on which is used**.
 
-Note: I MUST remember that when using awk inside snakemake, I must use double brackets{{}}.
+Note: When using awk inside snakemake, I must use double brackets{{}}.
 
 - Maybe it would be more flexible to just transform the results inside an R script, where I can use conditional statements more easily.
 - There is no need to select a Universe, g:Profiler uses one automatically.
@@ -237,7 +245,7 @@ if(class(genes) != "try-error"){
 }
 ```
 
-- **In order to better function with the FGSEA, the full species name should be specified and converted to the short version (Mus musculus to mmusculus)**
+- **In order to better function with the FGSEA, the full species name should be specified and converted to the short version inside the script(Mus musculus to mmusculus)**
 
 #### GSEA
 - The GSEA is performed with fgsea. It uses a ranked list of genes (by statistic) that can be identified by ENSEMBL ID (default at CNAG) or SYMBOL.
@@ -297,11 +305,9 @@ allLevels <- gmtPathways(snakemake@input$gmt)
 - Specific GMT files collections can be downloaded from: https://www.gsea-msigdb.org/gsea/msigdb/
 - `fgsea` uses Montecarlo approach. If I specify the `nperm` argument setting the permutationts, a warning appears, stating that I should not use simple fgsea, but multilevel fgsea. I talked to Anna and decided to remove the argument to allow for multiLevelfgsea.
 - Maybe there is an error in the code. When running `ranks <- unique(ranks)` the length of the ranked list diminishes, but I get a warning that some ENSEMBL names are repeated. Should I change the code to `ranks <- unique(names(ranks))`? **I changed the unique selection, that i think was wrong (not sure)**.
+- **If orthologous genes are used, I download the genes with g:Profiler function `gorth()`, which gives a data frame of different size. I then merge the dataframes by ENSEMBLID and create a ranked list from the new dataframe.**
 - Maybe it would be interesting to create some graphs, like in the GSEA, like those in the REVIGO.
 
-
-Note: IF THERE ARE NO DEGs, I SHOULD CREATE AN EMPTY FILE TO AVOID SNAKEMAKE FAILURE LACKING OUTPUT.
-**Note 2: I should try to parallellize the process.**
 
 ### Integrate Marc's alignment workflow
 
@@ -333,7 +339,7 @@ rule all:
         get_final_output
 ```
 **Note:** This does not work. I have changed it in the code so it works. 
-- I can use Python `if()` inside any rule to change the workflow according to specified parameters.
+- I can use Python `if` before any rule to change the workflow according to specified parameters.
 
 ### Add conda dependencies to the each step in the Snakemake workflow
 

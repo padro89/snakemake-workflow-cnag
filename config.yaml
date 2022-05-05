@@ -1,19 +1,19 @@
-project: "TEST_01"
-meta: "/scratch/devel/mdabad/DEVEL/snakemake/TEST/rnapipeline/meta.tsv"
+# project: "TEST_01"
+# meta: "/scratch/devel/mdabad/DEVEL/snakemake/TEST/rnapipeline/meta.tsv"
 
-# Mapping parameters
-paired: false
-map_mode: "bulk"
-mode: "small"
-strand: "forw"
-trimming: true
-index:
-  star: "path/index"
-  rsem: "path/index"
-  gtf: "path/file.gtf"
-versions:
-  star_version: "2.7.8a"
-  rsem_version: "1.3.0"
+# # Mapping parameters
+# paired: false
+# map_mode: "bulk"
+# mode: "small"
+# strand: "forw"
+# trimming: true
+# index:
+#   star: "path/index"
+#   rsem: "path/index"
+#   gtf: "path/file.gtf"
+# versions:
+#   star_version: "2.7.8a"
+#   rsem_version: "1.3.0"
 path:
   trim: "/tmp"
   map: "/tmp"
@@ -24,22 +24,22 @@ path:
 # Method to use. Either "limma" or "deseq2"
 dge_method: "limma"
 # Path to the files
-info: "/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/info_10.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/covid_info.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/info_3.txt" #
-counts: "/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/counts_10.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/covid_counts.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/counts_3.txt" #
+info: "/home/joan/OneDrive/UOC/TFM/testdata/covid_info.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/info_10.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/info_3.txt" #
+counts: "/home/joan/OneDrive/UOC/TFM/testdata/covid_counts.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/counts_10.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/counts_3.txt" #
 # Lists of covariants to include (or NULL).
-factors: ["MOTHER","DIET","CONDITION","GROUP"] #["Grup"] #["CODE","GENE","SEX","GROUP"] #
+factors: ["Grup"] #["MOTHER","DIET","CONDITION","GROUP"] #["CODE","GENE","SEX","GROUP"] #
 continuous: []
 n_continuous_splits: [3]
 # Variable that contains the groups
-group: "GROUP" # "GROUP"
+group: "Grup" # "GROUP"
 # group: "GROUP_DUMMY"
 # Control group
 control: "Sa" # "Unaffected"
 # Variable with sample names. Leave blank if it is the rownames of the info.
-samples: "SAMPLE"
+samples: "NomCurt" # "SAMPLE"
 # Only PCA should be generated? (Boolean)
-onlypca: false
-# String with the formula to use for the model
+onlypca: False
+# String with the formula to use for the model. Use "group" for the interest variable
 formula: "~0+group" # "~0+group" #"~SEX+group"  #
 # Each contrast
 contrasts:
@@ -62,14 +62,14 @@ contrasts:
 
   # limma example
   # The name of the comparison MUST be formed with the levels of the group
-  # COVID19_vs_Sa: "COVID19 - Sa"
+  COVID19_vs_Sa: "COVID19 - Sa"
   # affected_vs_unaffected: "Affected - Unaffected"
-  affected_D_vs_unaffected_D: "affected_D - control_D"
-  affected_N_vs_unaffected_N: "affected_N - control_N"
-  affected_E_vs_unaffected_E: "affected_E - control_E"
-  D_vs_E_int: "(affected_D - control_D) - (affected_E - control_E)"
-  D_vs_N_int: "(affected_D - control_D) - (affected_N - control_N)"
-  N_vs_E_int: "(affected_N - control_N) - (affected_E - control_E)"
+  # affected_D_vs_unaffected_D: "affected_D - control_D"
+  # affected_N_vs_unaffected_N: "affected_N - control_N"
+  # affected_E_vs_unaffected_E: "affected_E - control_E"
+  # D_vs_E_int: "(affected_D - control_D) - (affected_E - control_E)"
+  # D_vs_N_int: "(affected_D - control_D) - (affected_N - control_N)"
+  # N_vs_E_int: "(affected_N - control_N) - (affected_E - control_E)"
 
 # Interaction identifier (Only for limma): A string (either "int", "diff" or something else)
 interaction_id: "int"
@@ -82,7 +82,8 @@ shrinkage_method: "ashr"
 # Method: Either "gprofiler", "fgsea" or "both"
 pathway_method: "both"
 # Species
-species: "Oryctolagus cuniculus" #"Homo sapiens" #
+species: "Homo sapiens" #"Oryctolagus cuniculus" #
+
 ## ORA params
 # Base URL
 baseurl: "https://biit.cs.ut.ee/gprofiler"
@@ -95,8 +96,6 @@ gmt: #"/home/joan/OneDrive/UOC/TFM/testdata/Ensembl2Reactome.HSA.gmt"
 id_type: "patata"
 # Rank column number or name. If blank, defaults to "stat" for DESeq2, and "t" for limma.
 rank:
-# Use Biomart for homologous species. Default False. May automatically change to Yes (see log).
-homologous: false
 
 ## Plotting
 # Whether plots shall be generated
