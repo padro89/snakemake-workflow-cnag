@@ -6,6 +6,10 @@ In this file I will reflect any ideas I have concerning this project, and what I
 
 The complete environment to run the workflow can be installed through conda/mamba from the mamba_envir.yaml file. Everything should be managed through the config.yml (there are examples of formatting in the file). 
 
+# What's new
+- Corrected some bugs (see below).
+- Added plot of the main pathways from the FGSEA.
+
 # Bugs
 - If plot is false there will be errors for sure. I should make conditional output in each rule according to this parameter.
 - I should check the limma PCA and sample to sample heatmap. I don't think it works properly.
