@@ -66,7 +66,7 @@ gmt_species <- c("Bos taurus", "Caenorhabditis elegans", "Canis familiaris",
                  "Rattus norvegicus", "Saccharomyces cerevisiae",
                  "Schizosaccharomyces pombe", "Sus scrofa", "Xenopus tropicalis")
 
-if(snakemake@config$species %in% gmt_species && is.null(snakemake@config$orth_species)){
+if(snakemake@config$species %in% gmt_species && snakemake@config$orth_species == F){
   orthologous <- F
 }else{
   orthologous <- T
@@ -89,7 +89,7 @@ ranks <- unique(ranks, by = "ID")
 if(orthologous == T){
   print("Converting to orthologous human genes.")
   # Use alternative orthologous species if one is provided
-  if(!is.null(snakemake@config$orth_species)){
+  if(snakemake@config$orth_species != F){
     target_organism <- snakemake@config$orth_species
   }else{
     target_organism <- "hsapiens"
@@ -121,6 +121,14 @@ topPathwaysDown <- fgseaRes[ES < 0][head(order(pval), n=20), pathway]
 topPathways <- c(topPathwaysUp, rev(topPathwaysDown))
 plotGseaTable(allLevels[topPathways], ranks, fgseaRes,
               gseaParam = 0.5, colwidths = c(5, 3,0.8, 1.2, 1.2))
+dev.off()
+
+# Collapsed pathways
+pdf(snakemake@output$fgsea_main_pathways_pdf, width = 15, height = 10)
+collapsedPathways <- collapsePathways(fgseaRes[order(pval)][padj < 0.01], allLevels, ranks)
+mainPathways <-fgseaRes[pathway %in% collapsedPathways$mainPathways][order(-NES),pathway]
+plotGseaTable(allLevels[mainPathways], ranks, fgseaRes, gseaParam = 0.5, 
+              colwidths = c(5, 3,0.8, 1.2, 1.2))
 dev.off()
 
 ## Save table of results

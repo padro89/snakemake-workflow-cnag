@@ -1,4 +1,4 @@
-#save.image(file="workspace")
+# save.image(file="workspace")
 
 # Load library
 library('gprofiler2')
@@ -49,9 +49,24 @@ colsExport <- c(
   "intersection"
 )
 
-# Get DEGs
-genes <- try(read.table(snakemake@input$deg_list, header = F)[,1],
+# Setting ENSEMBL or SYMBOL
+if(snakemake@config$id_type == "ENSEMBL" || is.null(snakemake@config$id_type)){
+  print("Using ENSEMBLID")
+  colid <- 1
+}else{
+  if(snakemake@config$id_type == "SYMBOL"){
+    print("Using SYMBOL")
+    colid <- 2
+  }else{
+    print("Unknown gene identifier. Defaulting to ENSEMBLID")
+    colid <- 1
+  }
+}
+
+# Get DEGs by ENSEMBL or SYMBOL and remove everything after the point (for ENSEMBL)
+genes <- try(read.table(snakemake@input$deg_list, header = F, sep = ",")[,colid],
              silent = F)
+genes <- sub("\\.[^.]*$", "", genes)
 
 if(class(genes) != "try-error"){
   if(orth_species != FALSE){

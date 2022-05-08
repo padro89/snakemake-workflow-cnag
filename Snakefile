@@ -77,6 +77,7 @@ if config["gmt"] is not None:
             gmt = config["gmt"],
         output:
             fgsea_pdf = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.pdf",
+            fgsea_main_pathways_pdf = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea_main_pathways.pdf",
             fgsea = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.tsv"
         script:
             "scripts/fgsea.R"
@@ -128,7 +129,7 @@ if config["dge_method"] == "deseq2":
             deg_list = temp(config["path"]["dge"]+"/{contrast}/{contrast}_deg_list.txt"),
         shell:
             "cat {input} | awk '{{if($NF < 0.05 && sqrt($4^2) > log(1.5)/log(2))"
-            " print $1}}' | cut -d ',' -f 1 | cut -d '.' -f 1 > {output}"
+            " print $1}}' > {output}"
 
 if config["dge_method"] == "limma":
     rule select_deg_limma:
@@ -138,7 +139,7 @@ if config["dge_method"] == "limma":
             deg_list = temp(config["path"]["dge"]+"/{contrast}/{contrast}_deg_list.txt"),
         shell:
             "cat {input} | awk '{{if($6 < 0.05 && sqrt($2^2) > log(1.5)/log(2))"
-            " print $1}}' | cut -d ',' -f 1 | cut -d '.' -f 1 > {output}"
+            " print $1}}' > {output}"
 
 
 # Running the PCA 
