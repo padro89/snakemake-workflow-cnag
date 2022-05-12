@@ -94,7 +94,7 @@ if config["gmt"] is None:
             "GMT_URL=https://reactome.org/download/current/Ensembl2Reactome_All_Levels.txt &&"
             "wget $GMT_URL -O {output} && unset $GMT_URL"
 
-    rule make_gmt_python:
+    rule make_gmt:
         input:
             reactome = config["path"]["dge"]+"/ensemble2reactome.txt"
         output:

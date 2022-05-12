@@ -87,7 +87,7 @@ ranks <- unique(ranks, by = "ID")
 
 # Use orthologous genes if needed (defaults to human)
 if(orthologous == T){
-  print("Converting to orthologous human genes.")
+  print("Using orthologous genes.")
   # Use alternative orthologous species if one is provided
   if(snakemake@config$orth_species != F){
     target_organism <- snakemake@config$orth_species
