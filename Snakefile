@@ -1,6 +1,6 @@
 # Loading config file
 
-configfile: "config.yaml"
+configfile: "../config/config.yaml"
 
 # Functions to get output and some parameters
 def get_contrast(wildcards):
