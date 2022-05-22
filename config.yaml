@@ -40,7 +40,11 @@ samples: #"NomCurt" # "SAMPLE"
 # Only PCA should be generated? (Boolean)
 onlypca: False
 # String with the formula to use for the model. Use "group" for the interest variable
+<<<<<<< HEAD
 formula: "~0+group+SEX" # "~0+group" #"~SEX+group"  #
+=======
+formula: "~0+group+SEX" #"~SEX+group"  #"~0+group" # 
+>>>>>>> temp-errors
 # Each contrast
 contrasts:
   ## DESeq2 example
@@ -91,7 +95,7 @@ baseurl: "https://biit.cs.ut.ee/gprofiler"
 orth_species: false
 ## FGSEA params
 # GMT file: Absolute path to the environment or blank for automatic Reactome pathways.
-gmt: "/home/joan/OneDrive/UOC/TFM/testdata/ensemble2reactome_2022_05_08.gmt"
+gmt: "/home/joan/OneDrive/UOC/TFM/testdata/ensemble2reactome_2022_05_22.gmt"
 # Gene identifier to use in the GSEA ("ENSEMBL","SYMBOL"). Only ENSEMBL if orth_species is provided.
 id_type: "SYMBOL"
 # Rank column number or name. If blank, defaults to "stat" for DESeq2, and "t" for limma.

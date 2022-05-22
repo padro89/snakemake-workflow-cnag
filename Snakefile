@@ -94,7 +94,7 @@ if config["gmt"] is None:
             "GMT_URL=https://reactome.org/download/current/Ensembl2Reactome_All_Levels.txt &&"
             "wget $GMT_URL -O {output} && unset $GMT_URL"
 
-    rule make_gmt_python:
+    rule make_gmt:
         input:
             reactome = config["path"]["dge"]+"/ensemble2reactome.txt"
         output:
@@ -108,6 +108,7 @@ if config["gmt"] is None:
             gmt = config["path"]["dge"]+f"/ensemble2reactome_{current_date}.gmt"
         output:
             fgsea_pdf = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.pdf",
+            fgsea_main_pathways_pdf = config["path"]["dge"]+"/{contrast}/{contrast}_main_patwhays_fgsea.pdf",
             fgsea = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.tsv"
         script:
             "scripts/fgsea.R"    

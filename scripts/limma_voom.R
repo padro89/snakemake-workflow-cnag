@@ -45,7 +45,7 @@ colnames(contr.matrix) <- names(snakemake@config$contrasts)
 
 
 # Voom transformation and model fitting with Bayesian error estimation
-v=voom(y,mod)
+v <- voom(y,mod)
 
 # Blocking
 if(!is.null(snakemake@config$blocking)){
