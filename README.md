@@ -12,7 +12,7 @@ The complete environment to run the workflow can be installed through conda/mamb
 
 # Bugs
 - If plot is false there will be errors for sure. I should make conditional output in each rule according to this parameter.
-- I should check the limma PCA and sample to sample heatmap. I don't think it works properly.
+- I should check the limma PCA and sample to sample heatmap. I don't think it works properly. *Updated:* I should run voom transformation before plotting the PCA.
 - The 'tiff' argument doesn't do anything. I should create conditional output in each rule according to this parameter.
 - Orthologous species only work with ENSEMBL ID, not SYMBOL, in FGSEA.
 

@@ -58,8 +58,8 @@ if(!is.null(snakemake@config$blocking)){
 }
 
 # Contrasts and bayesian correction of the errors.
-fit=contrasts.fit(fit, contrasts=contr.matrix)
-fit2=eBayes(fit)
+fit <- contrasts.fit(fit, contrasts=contr.matrix)
+fit2 <- eBayes(fit)
 summary(decideTests(fit2))
 
 # Create and save topTables

@@ -182,7 +182,7 @@ if config["dge_method"] == "limma":
             sampletosample = config["path"]["dge"]+"/sampletosample_heatmap.pdf",
             pcas = config["path"]["dge"]+"/PCA.pdf",
             pc_contribution = config["path"]["dge"]+"/pc_contribution.txt",
-            dge = temp(config["path"]["dge"]+"/dge")
+            dge = config["path"]["dge"]+"/dge"
         script:
             "scripts/PCA_limma.R"
 
