@@ -108,6 +108,7 @@ if config["gmt"] is None:
             gmt = config["path"]["dge"]+f"/ensemble2reactome_{current_date}.gmt"
         output:
             fgsea_pdf = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.pdf",
+            fgsea_main_pathways_pdf = config["path"]["dge"]+"/{contrast}/{contrast}_main_patwhays_fgsea.pdf",
             fgsea = config["path"]["dge"]+"/{contrast}/{contrast}_fgsea.tsv"
         script:
             "scripts/fgsea.R"    
