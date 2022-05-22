@@ -1,4 +1,4 @@
-#save.image(file="workspace")
+save.image(file="workspace")
 
 # Get species
 species <- snakemake@config$species

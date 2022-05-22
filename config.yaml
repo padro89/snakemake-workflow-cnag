@@ -22,7 +22,7 @@ path:
 
 # DGEA parameters
 # Method to use. Either "limma" or "deseq2"
-dge_method: "limma"
+dge_method: "deseq2"
 # Path to the files
 info: "/home/joan/OneDrive/UOC/TFM/testdata/info_3.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/covid_info.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/info_10.txt" #
 counts: "/home/joan/OneDrive/UOC/TFM/testdata/counts_3.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/covid_counts.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/counts_10.txt" #
@@ -40,20 +40,16 @@ samples: #"NomCurt" # "SAMPLE"
 # Only PCA should be generated? (Boolean)
 onlypca: False
 # String with the formula to use for the model. Use "group" for the interest variable
-<<<<<<< HEAD
-formula: "~0+group+SEX" # "~0+group" #"~SEX+group"  #
-=======
-formula: "~0+group+SEX" #"~SEX+group"  #"~0+group" # 
->>>>>>> temp-errors
+formula: "~SEX+group"  #"~0+group+SEX" #"~0+group" # 
 # Each contrast
 contrasts:
   ## DESeq2 example
   # covid_vs_sa:
   #   - COVID19
   #   - Sa
-  # affected_vs_unaffected:
-  #   - Affected
-  #   - Unaffected
+  affected_vs_unaffected:
+    - Affected
+    - Unaffected
   # mild_vs_unaffected: 
   #   - Mild
   #   - Unaffected
@@ -67,7 +63,7 @@ contrasts:
   ## limma example
   # The name of the comparison MUST be formed with the levels of the group
   # COVID19_vs_Sa: "COVID19 - Sa"
-  affected_vs_unaffected: "Affected - Unaffected"
+  # affected_vs_unaffected: "Affected - Unaffected"
   # affected_D_vs_unaffected_D: "affected_D - control_D"
   # affected_N_vs_unaffected_N: "affected_N - control_N"
   # affected_E_vs_unaffected_E: "affected_E - control_E"
@@ -97,7 +93,7 @@ orth_species: false
 # GMT file: Absolute path to the environment or blank for automatic Reactome pathways.
 gmt: "/home/joan/OneDrive/UOC/TFM/testdata/ensemble2reactome_2022_05_22.gmt"
 # Gene identifier to use in the GSEA ("ENSEMBL","SYMBOL"). Only ENSEMBL if orth_species is provided.
-id_type: "SYMBOL"
+id_type: "ENSEMBL"
 # Rank column number or name. If blank, defaults to "stat" for DESeq2, and "t" for limma.
 rank:
 
