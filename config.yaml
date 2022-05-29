@@ -24,10 +24,10 @@ path:
 # Method to use. Either "limma" or "deseq2"
 dge_method: "deseq2"
 # Path to the files
-info: "/home/joan/OneDrive/UOC/TFM/testdata/info_3.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/covid_info.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/info_10.txt" #
-counts: "/home/joan/OneDrive/UOC/TFM/testdata/counts_3.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/covid_counts.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/counts_10.txt" #
+info: "/home/joan/OneDrive/UOC/TFM/testdata/info_3.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/info_10.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/covid_info.txt" #
+counts: "/home/joan/OneDrive/UOC/TFM/testdata/counts_3.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/counts_10.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/covid_counts.txt" #
 # Lists of covariants to include (or NULL).
-factors: ["CODE","GENE","SEX","GROUP"] #["Grup"] #["MOTHER","DIET","CONDITION","GROUP"] #
+factors: ["CODE","GENE","SEX","GROUP"]  #["MOTHER","DIET","CONDITION","GROUP"] #["Grup"] #
 continuous: []
 n_continuous_splits: [3]
 # Variable that contains the groups
@@ -36,11 +36,11 @@ group: "GROUP" #"Grup" #
 # Control group
 control: "Unaffected" #"Sa" # 
 # Variable with sample names. Leave blank if it is the rownames of the info.
-samples: #"NomCurt" # "SAMPLE"
+samples: # "NomCurt" # "SAMPLE"
 # Only PCA should be generated? (Boolean)
 onlypca: False
 # String with the formula to use for the model. Use "group" for the interest variable
-formula: "~SEX+group"  #"~0+group+SEX" #"~0+group" # 
+formula: "~SEX+group"  #"~0+group+SEX" #"~0+group" # "~group" # 
 # Each contrast
 contrasts:
   ## DESeq2 example
@@ -80,7 +80,7 @@ shrinkage_method: "ashr"
 
 ## Pathway analysis params
 # Method: Either "gprofiler", "fgsea" or "both"
-pathway_method: "both"
+pathway_method: "fgsea"
 # Species
 species: "Homo sapiens" #"Oryctolagus cuniculus" #
 
@@ -91,7 +91,7 @@ baseurl: "https://biit.cs.ut.ee/gprofiler"
 orth_species: false
 ## FGSEA params
 # GMT file: Absolute path to the environment or blank for automatic Reactome pathways.
-gmt: "/home/joan/OneDrive/UOC/TFM/testdata/ensemble2reactome_2022_05_22.gmt"
+gmt: #"/home/joan/OneDrive/UOC/TFM/testdata/ensemble2reactome_2022_05_22.gmt"
 # Gene identifier to use in the GSEA ("ENSEMBL","SYMBOL"). Only ENSEMBL if orth_species is provided.
 id_type: "ENSEMBL"
 # Rank column number or name. If blank, defaults to "stat" for DESeq2, and "t" for limma.
@@ -105,7 +105,7 @@ tiff: true
 # Specify plot attributes
 plot_atr:
   # Labels of the PCA
-  pca: ["group", "SEX"]
+  pca: ["group"]
   # Labels of the heatmap
   heatmap_ann: "group"
   # Number of genes to show in the heatmap
