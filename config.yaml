@@ -24,41 +24,34 @@ path:
 # Method to use. Either "limma" or "deseq2"
 dge_method: "deseq2"
 # Path to the files
-info: "/home/joan/OneDrive/UOC/TFM/testdata/info_3.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/info_10.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/covid_info.txt" #
-counts: "/home/joan/OneDrive/UOC/TFM/testdata/counts_3.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/prova_grups/counts_10.txt" #"/home/joan/OneDrive/UOC/TFM/testdata/covid_counts.txt" #
+info: "/home/joan/OneDrive/UOC/TFM/testdata/info_3.txt"
+counts: "/home/joan/OneDrive/UOC/TFM/testdata/counts_3.txt"
 # Lists of covariants to include (or NULL).
-factors: ["CODE","GENE","SEX","GROUP"]  #["MOTHER","DIET","CONDITION","GROUP"] #["Grup"] #
+factors: ["CODE","GENE","SEX","GROUP"]
 continuous: []
 n_continuous_splits: [3]
 # Variable that contains the groups
-group: "GROUP" #"Grup" # 
-# group: "GROUP_DUMMY"
+group: "GROUP"
 # Control group
-control: "Unaffected" #"Sa" # 
+control: "Unaffected"
 # Variable with sample names. Leave blank if it is the rownames of the info.
-samples: # "NomCurt" # "SAMPLE"
+samples:
 # Only PCA should be generated? (Boolean)
 onlypca: False
 # String with the formula to use for the model. Use "group" for the interest variable
-formula: "~SEX+group"  #"~0+group+SEX" #"~0+group" # "~group" # 
+formula: "~SEX+group"
 # Each contrast
 contrasts:
   ## DESeq2 example
-  # covid_vs_sa:
-  #   - COVID19
-  #   - Sa
-  affected_vs_unaffected:
-    - Affected
+  mild_vs_unaffected: 
+    - Mild
     - Unaffected
-  # mild_vs_unaffected: 
-  #   - Mild
-  #   - Unaffected
-  # severe_vs_unaffected:
-  #   - Severe
-  #   - Unaffected
-  # mild_vs_severe:
-  #   - Mild
-  #   - Severe
+  severe_vs_unaffected:
+    - Severe
+    - Unaffected
+  mild_vs_severe:
+    - Mild
+    - Severe
 
   ## limma example
   # The name of the comparison MUST be formed with the levels of the group
